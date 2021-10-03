@@ -1,6 +1,7 @@
 package com.mironov.psychologicaltest.data
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.room.*
 import com.mironov.psychologicaltest.model.Question
 
@@ -23,7 +24,9 @@ interface QuestionDao {
     fun readAllData(): LiveData<List<Question>>
 
     @Query("SELECT * FROM question_table WHERE id =:id")
-    fun getQuestionById(id:Int): LiveData<List<Question>>
+    fun getQuestionById(id:Int): LiveData<Question>
 
+    @Query("SELECT COUNT(*) FROM question_table")
+    fun getRowsCount(): LiveData<Int>
 
 }

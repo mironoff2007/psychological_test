@@ -32,18 +32,16 @@ class DaoTest {
     fun getAllQuestions() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        val readAllData: LiveData<List<Question>>
         val repository: QuestionRepository
 
         val questionDao = QuestionDatabase.getDatabase(
             appContext
         ).questionDao()
         repository = QuestionRepository(questionDao)
-        readAllData = repository.readAllData
 
-        readAllData.observeForever(object : Observer<List<Question>?> {
-            override fun onChanged(@Nullable sections: List<Question>?) {
-                assertEquals(sections?.size, 60)
+        repository.getRowsCount().observeForever(object : Observer<Int> {
+            override fun onChanged(@Nullable sections: Int) {
+                assertEquals(sections, 60)
             }
         })
     }
@@ -52,7 +50,7 @@ class DaoTest {
     fun getQuestionById() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        val readAllData: LiveData<List<Question>>
+        val readAllData: LiveData<Question>
         val repository: QuestionRepository
 
         val questionDao = QuestionDatabase.getDatabase(
@@ -61,9 +59,9 @@ class DaoTest {
         repository = QuestionRepository(questionDao)
         readAllData = repository.getQuestionById(1)
 
-        readAllData.observeForever(object : Observer<List<Question>?> {
-            override fun onChanged(@Nullable sections: List<Question>?) {
-                assertEquals(sections?.get(0)?.questionText, "Любишь ли ты шум и суету вокруг себя")
+        readAllData.observeForever(object : Observer<Question> {
+            override fun onChanged(q: Question?) {
+                assertEquals(q?.questionText, "Любишь ли ты шум и суету вокруг себя")
             }
         })
     }
