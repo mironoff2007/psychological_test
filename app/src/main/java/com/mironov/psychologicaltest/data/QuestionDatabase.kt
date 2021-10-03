@@ -16,17 +16,19 @@ abstract class QuestionDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE: QuestionDatabase? = null
 
-        fun getDatabase(context: Context): QuestionDatabase{
+        fun getDatabase(context: Context): QuestionDatabase {
             val tempInstance = INSTANCE
-            if(tempInstance != null){
+            if (tempInstance != null) {
                 return tempInstance
             }
-            synchronized(this){
+            synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     QuestionDatabase::class.java,
                     "question_table"
-                ).createFromAsset("psychological_test.db").build()
+                ).createFromAsset("psychological_test.db")
+                    .fallbackToDestructiveMigration()
+                    .build()
                 INSTANCE = instance
                 return instance
             }

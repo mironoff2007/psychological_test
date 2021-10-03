@@ -19,6 +19,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var currentQuestion:Question?=null
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
+    val calculation:Calculation= Calculation()
 
     private val repository: QuestionRepository
 
@@ -39,6 +40,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 }
             })
         }
+        else{
+            viewModelStatus.postValue(Status.DONE)
+        }
+    }
+
+    fun answerYes() {
+       calculation.addAnswer(currentQuestion,"yes")
+        getNextQuestion()
+    }
+
+    fun answerNo() {
+        calculation.addAnswer(currentQuestion,"no")
+        getNextQuestion()
     }
 
     fun getQuestionText():String? {
@@ -46,6 +60,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     public fun getNextQuestion() {
+        viewModelStatus.postValue(Status.LOADING)
         if(questionMaxId==0)
             mutableMaxCount.observeForever(object : Observer<Int> {
             override fun onChanged(@Nullable count: Int) {
