@@ -10,7 +10,7 @@ import com.mironov.psychologicaltest.model.Question
 @Database(entities = [Question::class], version = 1, exportSchema = false)
 abstract class QuestionDatabase : RoomDatabase() {
 
-    abstract fun userDao(): QuestionDatabase
+    abstract fun questionDao(): QuestionDao
 
     companion object {
         @Volatile
@@ -25,8 +25,8 @@ abstract class QuestionDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     QuestionDatabase::class.java,
-                    "user_database"
-                ).build()
+                    "question_table"
+                ).createFromAsset("psychological_test.db").build()
                 INSTANCE = instance
                 return instance
             }
