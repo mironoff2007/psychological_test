@@ -16,6 +16,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var yesButton: Button
     lateinit var noButton: Button
+    lateinit var resetButton: Button
     private lateinit var questionText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,7 +34,9 @@ class MainActivity : AppCompatActivity() {
     private fun initViews() {
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
+        resetButton = findViewById(R.id.resetButton)
         questionText= findViewById(R.id.questionText)
+        resetButton.setVisibility(View.GONE);
     }
     private fun setupButtonsListeners() {
         yesButton.setOnClickListener { v: View? ->
@@ -41,6 +44,10 @@ class MainActivity : AppCompatActivity() {
         }
         noButton.setOnClickListener { v: View? ->
             viewModel.answerNo()
+        }
+        resetButton.setOnClickListener { v: View? ->
+            resetButton.setVisibility(View.GONE);
+            viewModel.reset()
         }
 
     }
@@ -53,6 +60,8 @@ class MainActivity : AppCompatActivity() {
                     questionText.text=q?.id.toString()+". "+q?.questionText+"?"
                     noButton.isEnabled=true
                     yesButton.isEnabled=true
+                    noButton.setVisibility(View.VISIBLE);
+                    yesButton.setVisibility(View.VISIBLE);
                 }
                 Status.LOADING -> {
                    noButton.isEnabled=false
@@ -64,6 +73,12 @@ class MainActivity : AppCompatActivity() {
                     var lie=viewModel.calculation.lie
                     Toast.makeText(applicationContext,viewModel.calculation.getResultString(),Toast.LENGTH_LONG).show()
                     Log.d("My_tag",viewModel.calculation.getResultString())
+                    noButton.isEnabled=false
+                    yesButton.isEnabled=false
+
+                    noButton.setVisibility(View.GONE);
+                    yesButton.setVisibility(View.GONE);
+                    resetButton.setVisibility(View.VISIBLE);
                 }
             }
         }

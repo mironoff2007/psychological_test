@@ -55,6 +55,13 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getNextQuestion()
     }
 
+    fun reset(){
+        calculation.resetCalc()
+        questionId = 1
+        questionMaxId=0
+        getNextQuestion()
+    }
+
     fun getQuestionText():String? {
         return currentQuestion?.questionText
     }

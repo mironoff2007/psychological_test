@@ -33,4 +33,10 @@ class Calculation {
         return "Экстраверсия="+extr+"/ Нейротизм="+neur+"/ Лживость="+lie
     }
 
+    fun resetCalc(){
+        extr=0
+        neur=0
+        lie=0
+    }
+
 }
