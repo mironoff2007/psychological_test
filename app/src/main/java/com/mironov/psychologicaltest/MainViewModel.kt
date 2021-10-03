@@ -12,11 +12,13 @@ import com.mironov.psychologicaltest.repository.QuestionRepository
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    var questionId = 0;
+    var questionId = 1;
     var questionMaxId=0;
     var mutableMaxCount : LiveData<Int>
 
     var currentQuestion:Question?=null
+
+    val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
 
     private val repository: QuestionRepository
 
@@ -29,13 +31,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getQuestionById(id: Int) {
-        if (id<=questionMaxId-1) {
+        if (id<=questionMaxId) {
             repository.getQuestionById(id).observeForever(object : Observer<Question?> {
                 override fun onChanged(q: Question?) {
                     currentQuestion=q
+                    viewModelStatus.postValue(Status.RESPONSE)
                 }
             })
         }
+    }
+
+    fun getQuestionText():String? {
+        return currentQuestion?.questionText
     }
 
     public fun getNextQuestion() {
