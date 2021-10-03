@@ -8,20 +8,25 @@ class QuestionRepository(private val questionDao: QuestionDao) {
 
     val readAllData: LiveData<List<Question>> = questionDao.readAllData()
 
+
     suspend fun addQuestion(question: Question){
-        questionDao.addUser(question)
+        questionDao.addQuestion(question)
     }
 
     suspend fun updateQuestion(question: Question){
-        questionDao.updateUser(question)
+        questionDao.updateQuestion(question)
     }
 
     suspend fun deleteQuestion(question: Question){
-        questionDao.deleteUser(question)
+        questionDao.deleteQuestion(question)
     }
 
     suspend fun deleteAllQuestions(){
-        questionDao.deleteAllUsers()
+        questionDao.deleteAllQuestions()
+    }
+
+    fun getQuestionById(id:Int):LiveData<List<Question>>{
+        return questionDao.getQuestionById(id)
     }
 
 }
