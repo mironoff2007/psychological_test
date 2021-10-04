@@ -3,6 +3,7 @@ package com.mironov.psychologicaltest.data
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.mironov.psychologicaltest.model.Question
 
 @Dao
@@ -17,16 +18,13 @@ interface QuestionDao {
     @Delete
     suspend fun deleteQuestion(question: Question)
 
-    @Query("DELETE FROM question_table")
-    suspend fun deleteAllQuestions()
+    @RawQuery(observedEntities = [Question::class])//"SELECT * FROM question_table ORDER BY id ASC"
+    fun readAllData(query: SupportSQLiteQuery): LiveData<List<Question?>>
 
-    @Query("SELECT * FROM question_table ORDER BY id ASC")
-    fun readAllData(): LiveData<List<Question>>
+    @RawQuery(observedEntities = [Question::class])//"SELECT * FROM question_table WHERE id =:id"
+    fun getQuestionById(query:SupportSQLiteQuery): LiveData<Question?>
 
-    @Query("SELECT * FROM question_table WHERE id =:id")
-    fun getQuestionById(id:Int): LiveData<Question>
-
-    @Query("SELECT COUNT(*) FROM question_table")
-    fun getRowsCount(): LiveData<Int>
+    @RawQuery(observedEntities = [Question::class])//"SELECT COUNT(*) FROM question_table"
+    fun getRowsCount(query:SupportSQLiteQuery): LiveData<Int?>
 
 }

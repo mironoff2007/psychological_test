@@ -10,13 +10,21 @@ import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.QuestionRepository
 
+import java.util.ArrayDeque
+
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    var questionId = 1;
+    var questionId = 0;
     var questionMaxId=0;
-    var mutableMaxCount : LiveData<Int>
+    var mutableMaxCount : LiveData<Int?>
+
+    var answersQue:ArrayDeque<String>
+
+    var returned:Boolean=false
 
     var currentQuestion:Question?=null
+
+    lateinit var answer:String
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
     val calculation:Calculation= Calculation()
@@ -24,19 +32,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: QuestionRepository
 
     init {
+        answersQue=ArrayDeque<String> ()
         val questionDao = QuestionDatabase.getDatabase(
             application.applicationContext
         ).questionDao()
         repository = QuestionRepository(questionDao)
+
         mutableMaxCount=repository.getRowsCount()
+
     }
 
     fun getQuestionById(id: Int) {
         if (id<=questionMaxId) {
+            viewModelStatus.postValue(Status.LOADING)
             repository.getQuestionById(id).observeForever(object : Observer<Question?> {
                 override fun onChanged(q: Question?) {
                     currentQuestion=q
-                    viewModelStatus.postValue(Status.RESPONSE)
+                    if(returned){
+                        returned=false
+                        calculation.addAnswer(currentQuestion,answersQue.removeLast(),-1)
+                    }
+                    if(questionId==1){
+                        viewModelStatus.postValue(Status.FIRST)
+                    }
+                    else {
+                        viewModelStatus.postValue(Status.RESPONSE)
+                    }
                 }
             })
         }
@@ -46,18 +67,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun answerYes() {
-       calculation.addAnswer(currentQuestion,"yes")
+        answer="yes"
+        answersQue.push(answer)
+        calculation.addAnswer(currentQuestion,answer,1)
         getNextQuestion()
     }
 
     fun answerNo() {
-        calculation.addAnswer(currentQuestion,"no")
+        answer="no"
+        answersQue.push(answer)
+        calculation.addAnswer(currentQuestion,answer,1)
         getNextQuestion()
     }
 
     fun reset(){
+        answersQue.clear()
         calculation.resetCalc()
-        questionId = 1
+        questionId = 0
         questionMaxId=0
         getNextQuestion()
     }
@@ -68,19 +94,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     public fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
-        if(questionMaxId==0)
-            mutableMaxCount.observeForever(object : Observer<Int> {
-            override fun onChanged(@Nullable count: Int) {
-                questionMaxId=count
-                getQuestionById(questionId)
-                questionId++
-                mutableMaxCount.removeObserver ( this )
-            }
-        })
-        else{
-            getQuestionById(questionId)
+        if (questionMaxId == 0)
+            mutableMaxCount?.observeForever(object : Observer<Int?> {
+                override fun onChanged(@Nullable count: Int?) {
+                    if (count != null) {
+                        questionMaxId = count
+                    }
+                    questionId++
+                    getQuestionById(questionId)
+                    mutableMaxCount?.removeObserver(this)
+                }
+            })
+        else {
             questionId++
+            getQuestionById(questionId)
         }
+    }
 
+    fun prevQuestion() {
+        returned=true
+        questionId -= 1
+        getQuestionById(questionId)
     }
 }

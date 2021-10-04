@@ -25,7 +25,7 @@ abstract class QuestionDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     QuestionDatabase::class.java,
-                    "question_table"
+                    "psychological_test.db"
                 ).createFromAsset("psychological_test.db")
                     .fallbackToDestructiveMigration()
                     .build()

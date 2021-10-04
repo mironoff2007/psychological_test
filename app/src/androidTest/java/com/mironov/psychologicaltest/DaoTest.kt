@@ -22,8 +22,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class DaoTest {
-    var list: List<Question>? = null
-
 
     @get:Rule
     var instantTaskExecutorRule: InstantTaskExecutorRule = InstantTaskExecutorRule()
@@ -39,8 +37,8 @@ class DaoTest {
         ).questionDao()
         repository = QuestionRepository(questionDao)
 
-        repository.getRowsCount().observeForever(object : Observer<Int> {
-            override fun onChanged(@Nullable sections: Int) {
+        repository.getRowsCount().observeForever(object : Observer<Int?> {
+            override fun onChanged(@Nullable sections: Int?) {
                 assertEquals(sections, 60)
             }
         })
@@ -50,7 +48,7 @@ class DaoTest {
     fun getQuestionById() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        val readAllData: LiveData<Question>
+        val readAllData: LiveData<Question?>
         val repository: QuestionRepository
 
         val questionDao = QuestionDatabase.getDatabase(
@@ -59,7 +57,7 @@ class DaoTest {
         repository = QuestionRepository(questionDao)
         readAllData = repository.getQuestionById(1)
 
-        readAllData.observeForever(object : Observer<Question> {
+        readAllData.observeForever(object : Observer<Question?> {
             override fun onChanged(q: Question?) {
                 assertEquals(q?.questionText, "Любишь ли ты шум и суету вокруг себя")
             }
