@@ -37,8 +37,6 @@ class MainActivity : AppCompatActivity() {
         setupButtonsListeners()
         initSpinnerAdapters()
 
-        viewModel.changeTableName("azenk_child")
-
     }
 
     private fun initViews() {
@@ -97,6 +95,7 @@ class MainActivity : AppCompatActivity() {
                 tableName = stringArray[i]
                 viewModel.changeTableName(tableName)
                 prevButton.setVisibility(View.GONE);
+                resetButton.setVisibility(View.GONE);
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
