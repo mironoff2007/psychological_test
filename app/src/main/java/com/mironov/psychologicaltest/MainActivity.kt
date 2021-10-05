@@ -134,12 +134,7 @@ class MainActivity : AppCompatActivity() {
                     prevButton.isEnabled = false
                 }
                 Status.DONE -> {
-                    var extr = viewModel.calculation.extr
-                    var neur = viewModel.calculation.neur
-                    var lie = viewModel.calculation.lie
-
-                    questionText.text =
-                        " Экстраверсия=" + extr + "\n Нейротизм=" + neur + "\n Лживость=" + lie
+                    questionText.text =viewModel.calculation.getResultString()
                     Log.d("My_tag", viewModel.calculation.getResultString())
                     noButton.isEnabled = false
                     yesButton.isEnabled = false

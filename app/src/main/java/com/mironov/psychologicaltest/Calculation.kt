@@ -1,43 +1,32 @@
 package com.mironov.psychologicaltest
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.mironov.psychologicaltest.model.Question
+
 
 class Calculation {
 
+    private var resultsMap= HashMap<String?,Int>()
 
-    var extr=0
-    var neur=0
-    var lie=0
+    @RequiresApi(Build.VERSION_CODES.N)
+    fun addAnswer(question:Question?, userAnswer:String, inc:Int){
 
-    fun addAnswer(question:Question?,userAnswer:String,inc:Int){
-        when(question?.type) {
-            "extr" -> {
-                if(userAnswer.equals(question?.answer)){
-                    extr += inc
-                }
-            }
-            "neur" -> {
-                if(userAnswer.equals(question?.answer)){
-                    neur += inc
-                }
-
-            }
-            "lie" -> {
-                if(userAnswer.equals(question?.answer)){
-                    lie += inc
-                }
-            }
+        if(userAnswer.equals(question?.answer)) {
+            var oldVal = resultsMap.getOrDefault(question?.type, 0)
+            resultsMap.put(question?.type, oldVal + inc)
         }
     }
 
     fun getResultString():String{
-        return "Экстраверсия="+extr+"/ Нейротизм="+neur+"/ Лживость="+lie
+        //return "Экстраверсия="+extr+"/ Нейротизм="+neur+"/ Лживость="+lie
+        var str:String=""
+        resultsMap.forEach{ (key, value) -> str=str+("$key = $value \n") }
+        return str
     }
 
     fun resetCalc(){
-        extr=0
-        neur=0
-        lie=0
+        resultsMap.clear()
     }
 
 }
