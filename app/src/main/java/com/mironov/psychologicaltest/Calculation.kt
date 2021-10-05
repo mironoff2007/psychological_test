@@ -1,31 +1,40 @@
 package com.mironov.psychologicaltest
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.mironov.psychologicaltest.model.Question
 
 
 class Calculation {
 
-    private var resultsMap= HashMap<String?,Int>()
+    private var resultsMap = HashMap<String?, Int>()
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    fun addAnswer(question:Question?, userAnswer:String, inc:Int){
+    fun addAnswer(question: Question?, userAnswer: String, inc: Int) {
+        val type = question?.type
 
-        if(userAnswer.equals(question?.answer)) {
-            var oldVal = resultsMap.getOrDefault(question?.type, 0)
-            resultsMap.put(question?.type, oldVal + inc)
+        if (type?.contains(',') == true) {
+            //If question has multiple types
+            if (userAnswer ==  question?.answer) {
+                type.split(",").forEach { v ->
+                    val oldVal = resultsMap[v] ?: 0
+                    resultsMap[v] = oldVal + inc
+                }
+            }
+        }
+        else{
+            //Question has one types
+            if (userAnswer == question?.answer) {
+            val oldVal = resultsMap[type] ?: 0
+            resultsMap[type] = oldVal + inc
+            }
         }
     }
 
-    fun getResultString():String{
-        //return "Экстраверсия="+extr+"/ Нейротизм="+neur+"/ Лживость="+lie
-        var str:String=""
-        resultsMap.forEach{ (key, value) -> str=str+("$key = $value \n") }
+    fun getResultString(): String {
+        var str = ""
+        resultsMap.forEach { (key, value) -> str = "$str$key = $value \n" }
         return str
     }
 
-    fun resetCalc(){
+    fun resetCalc() {
         resultsMap.clear()
     }
 
