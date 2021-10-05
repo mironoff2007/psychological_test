@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">psychological test</string>
+
+    <string-array name="tests">
+        <item>azenk_child</item>
+        <item>vargi_stolen_par_rel</item>
+    </string-array>
+
+    <string-array name="testsNames">
+        <item>Опросник Айзенка</item>
+        <item>Опросник родительских отношений Варги—Столина (ОРО)</item>
+    </string-array>
 </resources>

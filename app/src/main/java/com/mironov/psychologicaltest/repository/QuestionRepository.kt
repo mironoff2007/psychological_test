@@ -9,14 +9,11 @@ import com.mironov.psychologicaltest.model.Question
 
 class QuestionRepository(private val questionDao: QuestionDao) {
 
-    val readAllData: LiveData<List<Question?>> = questionDao.readAllData(SimpleSQLiteQuery("SELECT * FROM question_table ORDER BY id ASC"))
-
-
-    fun getQuestionById(id: Int): LiveData<Question?> {
-        return questionDao.getQuestionById(SimpleSQLiteQuery("SELECT * FROM question_table WHERE id =$id"))
+    fun getQuestionById(tableName:String, id: Int): LiveData<Question?> {
+        return questionDao.getQuestionById(SimpleSQLiteQuery("SELECT * FROM $tableName WHERE id =$id"))
     }
 
-    fun getRowsCount(): LiveData<Int?> {
-        return questionDao.getRowsCount(SimpleSQLiteQuery("SELECT COUNT(*) FROM question_table"))
+    fun getRowsCount(tableName:String): LiveData<Int?> {
+        return questionDao.getRowsCount(SimpleSQLiteQuery("SELECT COUNT(*) FROM $tableName"))
     }
 }

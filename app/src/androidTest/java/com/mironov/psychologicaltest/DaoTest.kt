@@ -37,7 +37,7 @@ class DaoTest {
         ).questionDao()
         repository = QuestionRepository(questionDao)
 
-        repository.getRowsCount().observeForever(object : Observer<Int?> {
+        repository.getRowsCount("azenk_child").observeForever(object : Observer<Int?> {
             override fun onChanged(@Nullable sections: Int?) {
                 assertEquals(sections, 60)
             }
@@ -55,7 +55,7 @@ class DaoTest {
             appContext
         ).questionDao()
         repository = QuestionRepository(questionDao)
-        readAllData = repository.getQuestionById(1)
+        readAllData = repository.getQuestionById("azenk_child",1)
 
         readAllData.observeForever(object : Observer<Question?> {
             override fun onChanged(q: Question?) {

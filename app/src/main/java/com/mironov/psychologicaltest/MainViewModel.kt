@@ -16,7 +16,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var questionId = 0;
     var questionMaxId=0;
-    var mutableMaxCount : LiveData<Int?>
+    lateinit var mutableMaxCount : LiveData<Int?>
 
     var answersQue:ArrayDeque<String>
 
@@ -29,6 +29,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
     val calculation:Calculation= Calculation()
 
+    private lateinit var tableName:String
+
     private val repository: QuestionRepository
 
     init {
@@ -37,15 +39,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             application.applicationContext
         ).questionDao()
         repository = QuestionRepository(questionDao)
+    }
 
-        mutableMaxCount=repository.getRowsCount()
-
+    fun changeTableName(tableName:String){
+        this.tableName=tableName
+        mutableMaxCount=repository.getRowsCount(tableName)
+        reset()
     }
 
     fun getQuestionById(id: Int) {
         if (id<=questionMaxId) {
             viewModelStatus.postValue(Status.LOADING)
-            repository.getQuestionById(id).observeForever(object : Observer<Question?> {
+            repository.getQuestionById(tableName,id).observeForever(object : Observer<Question?> {
                 override fun onChanged(q: Question?) {
                     currentQuestion=q
                     if(returned){
@@ -88,11 +93,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getNextQuestion()
     }
 
-    fun getQuestionText():String? {
-        return currentQuestion?.questionText
-    }
-
-    public fun getNextQuestion() {
+    fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
         if (questionMaxId == 0)
             mutableMaxCount?.observeForever(object : Observer<Int?> {

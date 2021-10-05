@@ -3,10 +3,13 @@ package com.mironov.psychologicaltest
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import android.widget.ArrayAdapter
+
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -16,7 +19,12 @@ class MainActivity : AppCompatActivity() {
     lateinit var noButton: Button
     lateinit var prevButton: Button
     lateinit var resetButton: Button
+
+    private lateinit var tableNameSpinner: Spinner
+
     private lateinit var questionText: TextView
+
+    lateinit var tableName:String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +35,10 @@ class MainActivity : AppCompatActivity() {
         setupObserver()
         initViews()
         setupButtonsListeners()
-        viewModel.getNextQuestion()
+        initSpinnerAdapters()
+
+        viewModel.changeTableName("azenk_child")
+
     }
 
     private fun initViews() {
@@ -36,8 +47,11 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.prevButton)
         resetButton = findViewById(R.id.resetButton)
         questionText = findViewById(R.id.questionText)
+        tableNameSpinner= findViewById(R.id.tableNameSpinner)
+
         resetButton.setVisibility(View.GONE);
         prevButton.setVisibility(View.GONE);
+
         noButton.isEnabled = false
         yesButton.isEnabled = false
         prevButton.isEnabled = false
@@ -58,6 +72,37 @@ class MainActivity : AppCompatActivity() {
             viewModel.prevQuestion()
         }
 
+    }
+
+    private fun initSpinnerAdapters() {
+
+        val stringArray = resources.getStringArray(R.array.tests)
+
+        val adapter: ArrayAdapter<*> = ArrayAdapter.createFromResource(
+            this,
+            R.array.testsNames,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        //Spinner From
+        tableNameSpinner.adapter = adapter
+        tableNameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                adapterView: AdapterView<*>?,
+                view: View?,
+                i: Int,
+                l: Long
+            ) {
+                tableName = stringArray[i]
+                viewModel.changeTableName(tableName)
+                prevButton.setVisibility(View.GONE);
+            }
+
+            override fun onNothingSelected(adapterView: AdapterView<*>?) {
+                tableName = "azenk_child"
+            }
+        }
     }
 
     private fun setupObserver() {
