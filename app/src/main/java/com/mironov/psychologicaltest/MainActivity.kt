@@ -1,5 +1,6 @@
 package com.mironov.psychologicaltest
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -7,8 +8,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import android.widget.ArrayAdapter
-
-
+import androidx.annotation.RequiresApi
 
 
 class MainActivity : AppCompatActivity() {
@@ -55,6 +55,7 @@ class MainActivity : AppCompatActivity() {
         prevButton.isEnabled = false
     }
 
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupButtonsListeners() {
         yesButton.setOnClickListener { v: View? ->
             viewModel.answerYes()
@@ -115,10 +116,11 @@ class MainActivity : AppCompatActivity() {
                     yesButton.isEnabled = true
                     noButton.setVisibility(View.VISIBLE);
                     yesButton.setVisibility(View.VISIBLE);
+                    Log.d("My_tag", "-------")
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.RESPONSE -> {
-                    var q = viewModel.currentQuestion
+                    val q = viewModel.currentQuestion
                     questionText.text = q?.id.toString() + ". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true

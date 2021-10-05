@@ -8,6 +8,6 @@
 
     <string-array name="testsNames">
         <item>Опросник Айзенка</item>
-        <item>Опросник родительских отношений Варги—Столина (ОРО)</item>
+        <item>Варги—Столина (ОРО)</item>
     </string-array>
 </resources>
