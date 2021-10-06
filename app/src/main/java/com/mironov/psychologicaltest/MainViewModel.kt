@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest
 
 import android.app.Application
 import android.os.Build
+import android.util.Log
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
@@ -11,10 +12,12 @@ import androidx.lifecycle.Observer
 import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.QuestionRepository
+import com.mironov.psychologicaltest.util.PdfCreator
 import java.util.*
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
 
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+    var i=1;
     var questionId = 0
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
@@ -33,6 +36,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var tableName: String
 
     private val repository: QuestionRepository
+
+    val pdfCreator = PdfCreator()
+    var path:String=""
 
     init {
         val questionDao = QuestionDatabase.getDatabase(
@@ -118,4 +124,36 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         questionId -= 1
         getQuestionById(questionId)
     }
+
+    var endPrint:Boolean=false
+
+    fun printResults(path: String) {
+        this.path=path
+        i=1
+            pdfCreator.createpdf(path);
+            printResultsLoop()
+    }
+
+    fun printResultsLoop() {
+        getQuestionByIdForPrint(i)
+    }
+
+    fun getQuestionByIdForPrint(id: Int) {
+        if (id <= questionMaxId) {
+            repository.getQuestionById(tableName, id).observeForever(object : Observer<Question?> {
+                @RequiresApi(Build.VERSION_CODES.N)
+                override fun onChanged(q: Question?) {
+                    currentQuestion = q
+                    pdfCreator.addPage("$i. "+q?.questionText, "Ответ - да/нет", i)
+                    Log.d("My_tag", "Page "+"$i. added")
+                    i++
+                    printResultsLoop()
+                }
+            })
+        } else {
+            pdfCreator.writePDF()
+            viewModelStatus.postValue(Status.PRINTED)
+        }
+    }
 }
+

@@ -1,14 +1,23 @@
 package com.mironov.psychologicaltest
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import android.widget.ArrayAdapter
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.ViewModelProvider
+import android.content.Intent
+import android.net.Uri
+import android.os.Debug
+import android.provider.Contacts.AUTHORITY
+import java.io.File
+import androidx.core.content.FileProvider
+import java.security.AccessController.getContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -20,15 +29,30 @@ class MainActivity : AppCompatActivity() {
     lateinit var prevButton: Button
     lateinit var resetButton: Button
 
+    lateinit var createButton: Button
+
     private lateinit var tableNameSpinner: Spinner
 
     private lateinit var questionText: TextView
 
-    lateinit var tableName:String
+    lateinit var tableName: String
 
+    var path=""
+    var filePath=""
+
+    // Storage Permissions
+    val REQUEST_EXTERNAL_STORAGE = 1
+    val PERMISSIONS_STORAGE = arrayOf(
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //Debug.waitForDebugger()
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
@@ -37,6 +61,19 @@ class MainActivity : AppCompatActivity() {
         setupButtonsListeners()
         initSpinnerAdapters()
 
+        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        )
+        {
+
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                PERMISSIONS_STORAGE,
+                REQUEST_EXTERNAL_STORAGE
+            )
+        }
+        path = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
     }
 
     private fun initViews() {
@@ -44,11 +81,13 @@ class MainActivity : AppCompatActivity() {
         noButton = findViewById(R.id.noButton)
         prevButton = findViewById(R.id.prevButton)
         resetButton = findViewById(R.id.resetButton)
-        questionText = findViewById(R.id.questionText)
-        tableNameSpinner= findViewById(R.id.tableNameSpinner)
+        createButton = findViewById(R.id.createButton)
 
-        resetButton.setVisibility(View.GONE);
-        prevButton.setVisibility(View.GONE);
+        questionText = findViewById(R.id.questionText)
+        tableNameSpinner = findViewById(R.id.tableNameSpinner)
+
+        resetButton.visibility = View.GONE
+        prevButton.visibility = View.GONE
 
         noButton.isEnabled = false
         yesButton.isEnabled = false
@@ -64,11 +103,16 @@ class MainActivity : AppCompatActivity() {
             viewModel.answerNo()
         }
         resetButton.setOnClickListener { v: View? ->
-            resetButton.setVisibility(View.GONE);
+            resetButton.visibility = View.GONE
             viewModel.reset()
         }
         prevButton.setOnClickListener { v: View? ->
             viewModel.prevQuestion()
+        }
+
+        createButton.setOnClickListener { v: View? ->
+            filePath=path+"test_pdf.pdf"
+            viewModel.printResults(filePath)
         }
 
     }
@@ -95,8 +139,8 @@ class MainActivity : AppCompatActivity() {
             ) {
                 tableName = stringArray[i]
                 viewModel.changeTableName(tableName)
-                prevButton.setVisibility(View.GONE);
-                resetButton.setVisibility(View.GONE);
+                prevButton.visibility = View.GONE
+                resetButton.visibility = View.GONE
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
@@ -114,8 +158,8 @@ class MainActivity : AppCompatActivity() {
                     questionText.text = q?.id.toString() + ". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
-                    noButton.setVisibility(View.VISIBLE);
-                    yesButton.setVisibility(View.VISIBLE);
+                    noButton.visibility = View.VISIBLE
+                    yesButton.visibility = View.VISIBLE
                     Log.d("My_tag", "-------")
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
@@ -125,9 +169,9 @@ class MainActivity : AppCompatActivity() {
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
                     prevButton.isEnabled = true
-                    noButton.setVisibility(View.VISIBLE);
-                    yesButton.setVisibility(View.VISIBLE);
-                    prevButton.setVisibility(View.VISIBLE);
+                    noButton.visibility = View.VISIBLE
+                    yesButton.visibility = View.VISIBLE
+                    prevButton.visibility = View.VISIBLE
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.LOADING -> {
@@ -136,18 +180,33 @@ class MainActivity : AppCompatActivity() {
                     prevButton.isEnabled = false
                 }
                 Status.DONE -> {
-                    questionText.text =viewModel.calculation.getResultString()
+                    questionText.text = viewModel.calculation.getResultString()
                     Log.d("My_tag", viewModel.calculation.getResultString())
                     noButton.isEnabled = false
                     yesButton.isEnabled = false
 
-                    noButton.setVisibility(View.GONE);
-                    yesButton.setVisibility(View.GONE);
-                    prevButton.setVisibility(View.GONE);
-                    resetButton.setVisibility(View.VISIBLE);
+                    noButton.visibility = View.GONE
+                    yesButton.visibility = View.GONE
+                    prevButton.visibility = View.GONE
+                    resetButton.visibility = View.VISIBLE
+                }
+                Status.PRINTED -> {
+                    Toast.makeText(applicationContext,"PRINTED",Toast.LENGTH_LONG ).show()
+                    viewPdfFile(path)
                 }
 
             }
         }
+    }
+
+    fun viewPdfFile(path: String?) {
+        val file = File(path)
+
+        val intent = Intent(Intent.ACTION_VIEW, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file))
+
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        //intent.setType("application/pdf")
+        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+        startActivity(intent)
     }
 }
