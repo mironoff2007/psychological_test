@@ -202,6 +202,7 @@ class MainActivity : AppCompatActivity() {
                     createButton.visibility = View.VISIBLE
                 }
                 Status.PRINTED -> {
+                    progressBar.visibility = View.GONE
                     Toast.makeText(applicationContext,"PRINTED to - "+rootPath,Toast.LENGTH_LONG ).show()
                     Log.d("My_tag","PRINTED to - "+rootPath)
                     viewPdfFile(filePath)
