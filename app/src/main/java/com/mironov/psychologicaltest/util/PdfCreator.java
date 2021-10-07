@@ -7,6 +7,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfDocument;
+import android.text.Layout;
+import android.text.StaticLayout;
+import android.text.TextPaint;
 import android.util.Log;
 
 import java.io.File;
@@ -49,14 +52,20 @@ public class PdfCreator {
         int y = 25; // x = 10,
         //int x = (canvas.getWidth() / 2);
         int x = 10;
-
+        y += paint.descent() - paint.ascent();
+        /*
         paint.getTextBounds(questionText ,0, questionText.length(), bounds);
         x = (canvas.getWidth() / 2) - (bounds.width() / 2);
         canvas.drawText(questionText, x, y, paint);
+        */
+        canvas.drawText("", x, y, paint);
 
+        TextPaint mTextPaint=new TextPaint();
+        StaticLayout mTextLayout = new StaticLayout(questionText, mTextPaint, canvas.getWidth()-10, Layout.Alignment.ALIGN_CENTER, 1.0f, 0.0f, false);
+        mTextLayout.draw(canvas);
 
         //blank space
-        y += paint.descent() - paint.ascent();
+
         canvas.drawText("", x, y, paint);
 
         //answer

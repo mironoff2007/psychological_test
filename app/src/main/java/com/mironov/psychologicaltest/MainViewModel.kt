@@ -125,9 +125,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getQuestionById(questionId)
     }
 
-    var endPrint:Boolean=false
 
     fun printResults(path: String) {
+        viewModelStatus.postValue(Status.LOADING)
+
         this.path=path
         i=1
             pdfCreator.createpdf(path);
@@ -144,13 +145,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
-                    pdfCreator.addPage("$i. "+q?.questionText, "Ответ - да/нет", i)
+                    pdfCreator.addPage("$i. "+q?.questionText, "Ответ - "+answersQue.removeLast(), i)
                     Log.d("My_tag", "Page "+"$i. added")
                     i++
                     printResultsLoop()
                 }
             })
         } else {
+            pdfCreator.addPage(calculation.getResultString(), "", i+1)
             pdfCreator.writePDF()
             viewModelStatus.postValue(Status.PRINTED)
         }

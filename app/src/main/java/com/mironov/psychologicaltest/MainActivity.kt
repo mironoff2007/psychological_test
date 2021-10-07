@@ -1,6 +1,7 @@
 package com.mironov.psychologicaltest
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -12,12 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
-import android.net.Uri
-import android.os.Debug
-import android.provider.Contacts.AUTHORITY
 import java.io.File
 import androidx.core.content.FileProvider
-import java.security.AccessController.getContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -28,8 +25,9 @@ class MainActivity : AppCompatActivity() {
     lateinit var noButton: Button
     lateinit var prevButton: Button
     lateinit var resetButton: Button
-
     lateinit var createButton: Button
+
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var tableNameSpinner: Spinner
 
@@ -37,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var tableName: String
 
-    var path=""
+    var rootPath=""
     var filePath=""
 
     // Storage Permissions
@@ -73,7 +71,8 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_EXTERNAL_STORAGE
             )
         }
-        path = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+        rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+
     }
 
     private fun initViews() {
@@ -88,10 +87,15 @@ class MainActivity : AppCompatActivity() {
 
         resetButton.visibility = View.GONE
         prevButton.visibility = View.GONE
+        createButton.visibility = View.GONE
 
+        createButton.isEnabled = false
         noButton.isEnabled = false
         yesButton.isEnabled = false
         prevButton.isEnabled = false
+
+        progressBar = findViewById(R.id.progressBar)
+        progressBar.visibility = View.INVISIBLE
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -111,7 +115,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         createButton.setOnClickListener { v: View? ->
-            filePath=path+"test_pdf.pdf"
+            createButton.visibility = View.GONE
+            createButton.isEnabled = false
+            filePath=rootPath+"test_pdf.pdf"
             viewModel.printResults(filePath)
         }
 
@@ -160,6 +166,7 @@ class MainActivity : AppCompatActivity() {
                     yesButton.isEnabled = true
                     noButton.visibility = View.VISIBLE
                     yesButton.visibility = View.VISIBLE
+                    progressBar.visibility = View.INVISIBLE
                     Log.d("My_tag", "-------")
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
@@ -172,41 +179,48 @@ class MainActivity : AppCompatActivity() {
                     noButton.visibility = View.VISIBLE
                     yesButton.visibility = View.VISIBLE
                     prevButton.visibility = View.VISIBLE
+                    progressBar.visibility = View.INVISIBLE
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.LOADING -> {
                     noButton.isEnabled = false
                     yesButton.isEnabled = false
                     prevButton.isEnabled = false
+                    progressBar.visibility = View.VISIBLE
                 }
                 Status.DONE -> {
                     questionText.text = viewModel.calculation.getResultString()
                     Log.d("My_tag", viewModel.calculation.getResultString())
                     noButton.isEnabled = false
                     yesButton.isEnabled = false
+                    createButton.isEnabled = true
 
                     noButton.visibility = View.GONE
                     yesButton.visibility = View.GONE
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
+                    createButton.visibility = View.VISIBLE
                 }
                 Status.PRINTED -> {
-                    Toast.makeText(applicationContext,"PRINTED",Toast.LENGTH_LONG ).show()
-                    viewPdfFile(path)
+                    Toast.makeText(applicationContext,"PRINTED to - "+rootPath,Toast.LENGTH_LONG ).show()
+                    Log.d("My_tag","PRINTED to - "+rootPath)
+                    viewPdfFile(filePath)
                 }
 
             }
         }
     }
 
+    @SuppressLint("IntentReset")
     fun viewPdfFile(path: String?) {
+
         val file = File(path)
 
         val intent = Intent(Intent.ACTION_VIEW, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file))
-
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        //intent.setType("application/pdf")
+        //intent.type = "application/pdf"
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
+        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+
         startActivity(intent)
     }
 }
