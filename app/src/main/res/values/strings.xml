@@ -10,4 +10,8 @@
         <item>Опросник Айзенка</item>
         <item>Варги—Столина (ОРО)</item>
     </string-array>
+
+    <string name="action_confirm">Confirm</string>
+    <string name="volume_setup">Volume setup</string>
+    <string name="volume_description">Volume: %1$d%%</string>
 </resources>

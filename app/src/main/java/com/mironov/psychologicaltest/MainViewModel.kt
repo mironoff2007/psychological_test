@@ -146,7 +146,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
                     pdfCreator.addPage("$i. "+q?.questionText, "Ответ - "+answersQue.removeLast(), i)
-                    Log.d("My_tag", "Page "+"$i. added")
+                    //Log.d("My_tag", "Page "+"$i. added")
                     i++
                     printResultsLoop()
                 }

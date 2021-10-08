@@ -13,11 +13,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
+import android.os.Debug
 import java.io.File
 import androidx.core.content.FileProvider
+import com.mironov.psychologicaltest.databinding.ActivityMainBinding
 
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityMainBinding
+
+    lateinit var inputUserDataFragment:InputUserDataFragment
 
     lateinit var viewModel: MainViewModel
 
@@ -38,6 +44,8 @@ class MainActivity : AppCompatActivity() {
     var rootPath=""
     var filePath=""
 
+    var someValue=0;
+
     // Storage Permissions
     val REQUEST_EXTERNAL_STORAGE = 1
     val PERMISSIONS_STORAGE = arrayOf(
@@ -47,10 +55,14 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
+
+      // Debug.waitForDebugger()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        //Debug.waitForDebugger()
+
+
+        binding = ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
 
@@ -58,9 +70,10 @@ class MainActivity : AppCompatActivity() {
         initViews()
         setupButtonsListeners()
         initSpinnerAdapters()
+        setupSingleChoiceWithConfirmationDialogFragmentListener()
 
-        if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         )
         {
 
@@ -73,9 +86,13 @@ class MainActivity : AppCompatActivity() {
         }
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
 
+       // showSingleChoiceWithConfirmationDialogFragment()
+        inputUserDataFragment.show(supportFragmentManager,"inputUserDataFragment")
     }
 
     private fun initViews() {
+        inputUserDataFragment=InputUserDataFragment()
+
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
         prevButton = findViewById(R.id.prevButton)
@@ -98,6 +115,16 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.INVISIBLE
     }
 
+    private fun showSingleChoiceWithConfirmationDialogFragment() {
+        SingleChoiceWithConfirmationDialogFragment.show(supportFragmentManager, 10)
+    }
+    private fun setupSingleChoiceWithConfirmationDialogFragmentListener() {
+        SingleChoiceWithConfirmationDialogFragment.setupListener(supportFragmentManager, this) {
+            this.someValue = it
+        }
+    }
+
+    //Buttons Listeners
     @RequiresApi(Build.VERSION_CODES.N)
     private fun setupButtonsListeners() {
         yesButton.setOnClickListener { v: View? ->
@@ -123,6 +150,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    //Spinners
     private fun initSpinnerAdapters() {
 
         val stringArray = resources.getStringArray(R.array.tests)
@@ -134,8 +162,9 @@ class MainActivity : AppCompatActivity() {
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-        //Spinner From
+
         tableNameSpinner.adapter = adapter
+
         tableNameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
                 adapterView: AdapterView<*>?,
@@ -152,7 +181,10 @@ class MainActivity : AppCompatActivity() {
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
                 tableName = "azenk_child"
             }
+
         }
+
+
     }
 
     private fun setupObserver() {
@@ -225,3 +257,9 @@ class MainActivity : AppCompatActivity() {
         startActivity(intent)
     }
 }
+
+
+
+
+
+
