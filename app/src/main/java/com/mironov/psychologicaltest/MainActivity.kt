@@ -17,6 +17,10 @@ import android.os.Debug
 import java.io.File
 import androidx.core.content.FileProvider
 import com.mironov.psychologicaltest.databinding.ActivityMainBinding
+import android.widget.Toast
+
+
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,26 +45,28 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var tableName: String
 
-    var rootPath=""
-    var filePath=""
+    private var rootPath=""
+    private var filePath=""
+    private var testName=""
+
+    private var userName:String? = null
 
     var someValue=0;
 
     // Storage Permissions
-    val REQUEST_EXTERNAL_STORAGE = 1
-    val PERMISSIONS_STORAGE = arrayOf(
+    private val REQUEST_EXTERNAL_STORAGE = 1
+    private val PERMISSIONS_STORAGE = arrayOf(
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
+
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-      // Debug.waitForDebugger()
+        //Debug.waitForDebugger()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
 
         binding = ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
 
@@ -70,8 +76,14 @@ class MainActivity : AppCompatActivity() {
         initViews()
         setupButtonsListeners()
         initSpinnerAdapters()
-        setupSingleChoiceWithConfirmationDialogFragmentListener()
+        requestPermissions()
 
+        rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun requestPermissions() {
         if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
             checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
         )
@@ -84,12 +96,28 @@ class MainActivity : AppCompatActivity() {
                 REQUEST_EXTERNAL_STORAGE
             )
         }
-        rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
-
-       // showSingleChoiceWithConfirmationDialogFragment()
-        inputUserDataFragment.show(supportFragmentManager,"inputUserDataFragment")
     }
 
+    override fun onResume() {
+        super.onResume()
+        receiveData()
+    }
+
+
+    private fun receiveData() {
+        //RECEIVE DATA VIA INTENT
+
+        //DETERMINE WHO STARTED THIS ACTIVITY
+        val sender = this.intent.extras?.getString(KeysContainer.KEY_SENDER)
+
+        //IF ITS THE FRAGMENT THEN RECEIVE DATA
+        if (sender.equals(KeysContainer.KEY_NAME_FRAGMENT)) {
+            val name = intent.getStringExtra(KeysContainer.KEY_NAME_FRAGMENT)
+            userName=name
+        }
+
+
+    }
     private fun initViews() {
         inputUserDataFragment=InputUserDataFragment()
 
@@ -115,14 +143,6 @@ class MainActivity : AppCompatActivity() {
         progressBar.visibility = View.INVISIBLE
     }
 
-    private fun showSingleChoiceWithConfirmationDialogFragment() {
-        SingleChoiceWithConfirmationDialogFragment.show(supportFragmentManager, 10)
-    }
-    private fun setupSingleChoiceWithConfirmationDialogFragmentListener() {
-        SingleChoiceWithConfirmationDialogFragment.setupListener(supportFragmentManager, this) {
-            this.someValue = it
-        }
-    }
 
     //Buttons Listeners
     @RequiresApi(Build.VERSION_CODES.N)
@@ -144,7 +164,7 @@ class MainActivity : AppCompatActivity() {
         createButton.setOnClickListener { v: View? ->
             createButton.visibility = View.GONE
             createButton.isEnabled = false
-            filePath=rootPath+"test_pdf.pdf"
+            filePath= rootPath+userName+"-"+testName+".pdf"
             viewModel.printResults(filePath)
         }
 
@@ -153,7 +173,8 @@ class MainActivity : AppCompatActivity() {
     //Spinners
     private fun initSpinnerAdapters() {
 
-        val stringArray = resources.getStringArray(R.array.tests)
+        val testDbNames = resources.getStringArray(R.array.tests)
+        val testsNames = resources.getStringArray(R.array.testsNames)
 
         val adapter: ArrayAdapter<*> = ArrayAdapter.createFromResource(
             this,
@@ -172,10 +193,22 @@ class MainActivity : AppCompatActivity() {
                 i: Int,
                 l: Long
             ) {
-                tableName = stringArray[i]
+                tableName = testDbNames[i]
                 viewModel.changeTableName(tableName)
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE
+
+                testName=testsNames[i]
+
+                if(userName==null) {
+                    inputUserDataFragment = InputUserDataFragment()
+
+                    inputUserDataFragment.show(
+                        supportFragmentManager,
+                        KeysContainer.KEY_FRAGMENT_USER_DATA
+                    )
+                }
+
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
@@ -187,12 +220,13 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun setupObserver() {
         viewModel.viewModelStatus.observe(this) {
             when (it) {
                 Status.FIRST -> {
                     prevButton.isEnabled = false
-                    var q = viewModel.currentQuestion
+                    val q = viewModel.currentQuestion
                     questionText.text = q?.id.toString() + ". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
@@ -235,22 +269,18 @@ class MainActivity : AppCompatActivity() {
                 }
                 Status.PRINTED -> {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(applicationContext,"PRINTED to - "+rootPath,Toast.LENGTH_LONG ).show()
-                    Log.d("My_tag","PRINTED to - "+rootPath)
+                    Toast.makeText(applicationContext,"PRINTED to - "+filePath,Toast.LENGTH_LONG ).show()
+                    Log.d("My_tag","PRINTED to - "+filePath)
                     viewPdfFile(filePath)
                 }
-
             }
         }
     }
 
-    @SuppressLint("IntentReset")
-    fun viewPdfFile(path: String?) {
 
+    private fun viewPdfFile(path: String?) {
         val file = File(path)
-
         val intent = Intent(Intent.ACTION_VIEW, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file))
-        //intent.type = "application/pdf"
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
