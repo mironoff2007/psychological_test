@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest
 
 import android.app.Application
 import android.os.Build
+import android.text.Layout
 import android.util.Log
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
@@ -131,7 +132,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         this.path=path
         i=1
-            pdfCreator.createpdf(path);
+            pdfCreator.createpdf(path,300,500);
             printResultsLoop()
     }
 
@@ -145,14 +146,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
-                    pdfCreator.addPage("$i. "+q?.questionText, "Ответ - "+answersQue.removeLast(), i)
-                    //Log.d("My_tag", "Page "+"$i. added")
+                    pdfCreator.addLine("$i. "+q?.questionText,Layout.Alignment.ALIGN_NORMAL)
+                    pdfCreator.addLine("Ответ - "+answersQue.removeLast(),Layout.Alignment.ALIGN_CENTER)
+                    pdfCreator.addLine("___________________________________________\n",Layout.Alignment.ALIGN_CENTER)
+
                     i++
                     printResultsLoop()
                 }
             })
         } else {
-            pdfCreator.addPage(calculation.getResultString(), "", i+1)
+            pdfCreator.addLine(calculation.getResultString(),Layout.Alignment.ALIGN_NORMAL )
             pdfCreator.writePDF()
             viewModelStatus.postValue(Status.PRINTED)
         }
