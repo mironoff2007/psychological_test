@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
 import java.io.File
 import androidx.core.content.FileProvider
-import com.mironov.psychologicaltest.databinding.ActivityMainBinding
 import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
@@ -25,8 +24,6 @@ import com.mironov.psychologicaltest.ui.InputUserDataFragment
 
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivityMainBinding
 
     lateinit var inputUserDataFragment: InputUserDataFragment
 
@@ -67,9 +64,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        binding = ActivityMainBinding.inflate(layoutInflater).also { setContentView(it.root) }
-
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel.setAnswers(getString(R.string.answer_no),getString(R.string.answer_yes))
+        viewModel.answerToPrintText=getString(R.string.print_answer)
 
         setupObserver()
         initViews()

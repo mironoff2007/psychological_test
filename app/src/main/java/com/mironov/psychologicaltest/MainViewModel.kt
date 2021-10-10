@@ -30,7 +30,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var currentQuestion: Question? = null
 
-    lateinit var answer: String
+    private lateinit var answer: String
+    private lateinit var answerYes:String
+    private lateinit var answerNo:String
+    lateinit var answerToPrintText:String
+
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
     val calculation: Calculation = Calculation()
@@ -47,6 +51,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             application.applicationContext
         ).questionDao()
         repository = QuestionRepository(questionDao)
+    }
+
+    fun setAnswers(answerNo:String,answerYes:String){
+        this.answerNo=answerNo
+        this.answerYes=answerYes
     }
 
     fun changeTableName(tableName: String) {
@@ -80,7 +89,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun answerYes() {
-        answer = "yes"
+        answer = answerYes
         answersQue.push(answer)
         calculation.addAnswer(currentQuestion, answer, 1)
         getNextQuestion()
@@ -88,7 +97,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     @RequiresApi(Build.VERSION_CODES.N)
     fun answerNo() {
-        answer = "no"
+        answer = answerNo
         answersQue.push(answer)
         calculation.addAnswer(currentQuestion, answer, 1)
         getNextQuestion()
@@ -148,7 +157,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
                     pdfCreator.addLine("$i. "+q?.questionText,Layout.Alignment.ALIGN_NORMAL)
-                    pdfCreator.addLine("Ответ - "+answersQue.removeLast(),Layout.Alignment.ALIGN_CENTER)
+                    pdfCreator.addLine(answerToPrintText+answersQue.removeLast(),Layout.Alignment.ALIGN_CENTER)
                     pdfCreator.addLine("___________________________________________\n",Layout.Alignment.ALIGN_CENTER)
 
                     i++
