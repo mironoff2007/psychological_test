@@ -1,6 +1,4 @@
-package com.mironov.psychologicaltest
-
-import com.mironov.psychologicaltest.model.Question
+package com.mironov.psychologicaltest.model
 
 
 class Calculation {
@@ -12,7 +10,7 @@ class Calculation {
 
         if (type?.contains(',') == true) {
             //If question has multiple types
-            if (userAnswer ==  question?.answer) {
+            if (userAnswer == question.answer) {
                 type.split(",").forEach { v ->
                     val oldVal = resultsMap[v] ?: 0
                     resultsMap[v] = oldVal + inc

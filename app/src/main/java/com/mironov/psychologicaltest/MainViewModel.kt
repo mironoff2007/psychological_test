@@ -3,14 +3,15 @@ package com.mironov.psychologicaltest
 import android.app.Application
 import android.os.Build
 import android.text.Layout
-import android.util.Log
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.data.QuestionDatabase
+import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.QuestionRepository
 import com.mironov.psychologicaltest.util.PdfCreator
@@ -18,7 +19,7 @@ import java.util.*
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    var i=1;
+    var i=1
     var questionId = 0
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
@@ -132,7 +133,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
         this.path=path
         i=1
-            pdfCreator.createpdf(path,300,500);
+            pdfCreator.createpdf(path,300,500)
             printResultsLoop()
     }
 

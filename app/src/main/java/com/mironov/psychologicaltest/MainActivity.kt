@@ -13,21 +13,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
-import android.os.Debug
 import java.io.File
 import androidx.core.content.FileProvider
 import com.mironov.psychologicaltest.databinding.ActivityMainBinding
 import android.widget.Toast
-
-
-
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.Status
+import com.mironov.psychologicaltest.ui.InputUserDataFragment
 
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    lateinit var inputUserDataFragment:InputUserDataFragment
+    lateinit var inputUserDataFragment: InputUserDataFragment
 
     lateinit var viewModel: MainViewModel
 
@@ -45,13 +46,11 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var tableName: String
 
-    private var rootPath=""
-    private var filePath=""
-    private var testName=""
+    private var rootPath = ""
+    private var filePath = ""
+    private var testName = ""
 
-    private var userName:String? = null
-
-    var someValue=0;
+    private var userName: String? = null
 
     // Storage Permissions
     private val REQUEST_EXTERNAL_STORAGE = 1
@@ -84,12 +83,9 @@ class MainActivity : AppCompatActivity() {
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun requestPermissions() {
-        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
-        )
-        {
-
-        } else {
+        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+        ) {
             ActivityCompat.requestPermissions(
                 this,
                 PERMISSIONS_STORAGE,
@@ -108,18 +104,19 @@ class MainActivity : AppCompatActivity() {
         //RECEIVE DATA VIA INTENT
 
         //DETERMINE WHO STARTED THIS ACTIVITY
-        val sender = this.intent.extras?.getString(KeysContainer.KEY_SENDER)
+        val sender = this.intent.extras?.getString(KEY_SENDER)
 
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
-        if (sender.equals(KeysContainer.KEY_NAME_FRAGMENT)) {
-            val name = intent.getStringExtra(KeysContainer.KEY_NAME_FRAGMENT)
-            userName=name
+        if (sender.equals(KEY_NAME_FRAGMENT)) {
+            val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
+            userName = name
         }
 
 
     }
+
     private fun initViews() {
-        inputUserDataFragment=InputUserDataFragment()
+        inputUserDataFragment = InputUserDataFragment()
 
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
@@ -164,7 +161,7 @@ class MainActivity : AppCompatActivity() {
         createButton.setOnClickListener { v: View? ->
             createButton.visibility = View.GONE
             createButton.isEnabled = false
-            filePath= rootPath+userName+"-"+testName+".pdf"
+            filePath = rootPath + userName + "-" + testName + ".pdf"
             viewModel.printResults(filePath)
         }
 
@@ -198,15 +195,12 @@ class MainActivity : AppCompatActivity() {
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE
 
-                testName=testsNames[i]
+                testName = testsNames[i]
 
-                if(userName==null) {
+                if (userName == null) {
                     inputUserDataFragment = InputUserDataFragment()
 
-                    inputUserDataFragment.show(
-                        supportFragmentManager,
-                        KeysContainer.KEY_FRAGMENT_USER_DATA
-                    )
+                    inputUserDataFragment.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
                 }
 
             }
@@ -269,8 +263,12 @@ class MainActivity : AppCompatActivity() {
                 }
                 Status.PRINTED -> {
                     progressBar.visibility = View.GONE
-                    Toast.makeText(applicationContext,"PRINTED to - "+filePath,Toast.LENGTH_LONG ).show()
-                    Log.d("My_tag","PRINTED to - "+filePath)
+                    Toast.makeText(
+                        applicationContext,
+                        "PRINTED to - " + filePath,
+                        Toast.LENGTH_LONG
+                    ).show()
+                    Log.d("My_tag", "PRINTED to - " + filePath)
                     viewPdfFile(filePath)
                 }
             }
@@ -280,7 +278,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun viewPdfFile(path: String?) {
         val file = File(path)
-        val intent = Intent(Intent.ACTION_VIEW, FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file))
+        val intent = Intent(
+            Intent.ACTION_VIEW,
+            FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
+        )
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 

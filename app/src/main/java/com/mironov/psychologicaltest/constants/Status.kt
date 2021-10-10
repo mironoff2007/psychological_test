@@ -1,4 +1,4 @@
-package com.mironov.psychologicaltest
+package com.mironov.psychologicaltest.constants
 
 enum class Status {
     LOADING, ERROR, RESPONSE, DONE,FIRST,PRINTED

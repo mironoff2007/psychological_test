@@ -1,4 +1,4 @@
-package com.mironov.psychologicaltest
+package com.mironov.psychologicaltest.constants
 
 object KeysContainer {
     const val KEY_FRAGMENT_USER_DATA="KEY_FRAGMENT_USER_DATA"

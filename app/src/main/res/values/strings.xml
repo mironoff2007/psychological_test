@@ -11,7 +11,11 @@
         <item>Варги—Столина(ОРО)</item>
     </string-array>
 
-    <string name="action_confirm">Confirm</string>
-    <string name="volume_setup">Volume setup</string>
-    <string name="volume_description">Volume: %1$d%%</string>
+    <string name="answer_yes">да</string>
+    <string name="answer_no">нет</string>
+    <string name="button_begin">сначала</string>
+    <string name="button_prev">назад</string>
+    <string name="initial_question_text">Вопрос</string>
+    <string name="button_create_pdf">создать pdf</string>
+
 </resources>
