@@ -5,15 +5,17 @@ class Calculation {
 
     private var resultsMap = HashMap<String?, Int>()
 
-    fun addAnswer(question: Question?, userAnswer: String, inc: Int) {
+    fun addAnswer(question: Question?, userAnswer: String, incSign: Int) {
         val type = question?.type
 
-        if (type?.contains(',') == true) {
+        val inc=question!!.inc
+
+        if (type?.contains(';') == true) {
             //If question has multiple types
             if (userAnswer == question.answer) {
                 type.split(",").forEach { v ->
                     val oldVal = resultsMap[v] ?: 0
-                    resultsMap[v] = oldVal + inc
+                    resultsMap[v] = oldVal + incSign* inc!!
                 }
             }
         }
@@ -21,7 +23,7 @@ class Calculation {
             //Question has one types
             if (userAnswer == question?.answer) {
             val oldVal = resultsMap[type] ?: 0
-            resultsMap[type] = oldVal + inc
+            resultsMap[type] = oldVal + incSign* inc!!
             }
         }
     }

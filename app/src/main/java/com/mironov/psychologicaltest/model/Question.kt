@@ -12,5 +12,6 @@ data class Question(
     val id: Int,
     val questionText: String?,
     val type:String?,
-    val answer:String?
+    val answer:String?,
+    val inc:Int?
 ): Parcelable

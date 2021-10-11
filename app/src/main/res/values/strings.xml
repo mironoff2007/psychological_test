@@ -4,11 +4,13 @@
     <string-array name="tests">
         <item>azenk_child</item>
         <item>vargi_stolen_par_rel</item>
+        <item>shmishek_leongard_character_and_temperament</item>
     </string-array>
 
     <string-array name="testsNames">
         <item>Опросник Айзенка</item>
         <item>Варги—Столина(ОРО)</item>
+        <item>Г. Шмишека, К. Леонгарда - Акцентуации характера и темперамента</item>
     </string-array>
 
     <string name="answer_yes">да</string>
