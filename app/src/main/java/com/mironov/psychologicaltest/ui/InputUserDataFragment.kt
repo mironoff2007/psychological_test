@@ -1,5 +1,6 @@
 package com.mironov.psychologicaltest.ui
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -37,31 +38,39 @@ class InputUserDataFragment : DialogFragment() {
         inputNameText.filters = arrayOf(filter)
 
         sendBtn = rootView.findViewById<View>(R.id.sendBtn) as Button
-        sendBtn.setOnClickListener { sendData() }
+        sendBtn.setOnClickListener { sendData(inputNameText.text.toString()) }
 
         return rootView
     }
 
-    private val filter =
+
+    override fun onCancel(dialog: DialogInterface) {
+        super.onCancel(dialog)
+        sendData("")
+    }
+
+
+
+        private val filter =
         InputFilter { source, start, end, dest, dstart, dend ->
             if (source != null && blockCharacterSet.contains("" + source)) {
                 ""
             } else null
         }
 
-    private fun sendData() {
+    private fun sendData(text:String) {
         //INTENT OBJ
         val i = Intent(requireActivity().baseContext, MainActivity::class.java)
 
         //PACK DATA
         i.putExtra(KEY_SENDER, KEY_NAME_FRAGMENT)
-        i.putExtra(KEY_NAME_FRAGMENT, inputNameText.getText().toString())
+        i.putExtra(KEY_NAME_FRAGMENT, text)
 
         //RESET WIDGETS
         inputNameText.setText("")
 
         //START ACTIVITY
         requireActivity().startActivity(i)
-        //dismiss()
+        dismiss()
     }
 }

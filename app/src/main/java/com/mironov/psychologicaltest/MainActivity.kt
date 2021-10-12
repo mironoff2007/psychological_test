@@ -13,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
+import android.os.Debug
 import java.io.File
 import androidx.core.content.FileProvider
 import android.widget.Toast
@@ -21,6 +22,7 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -49,6 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private var userName: String? = null
 
+
     // Storage Permissions
     private val REQUEST_EXTERNAL_STORAGE = 1
     private val PERMISSIONS_STORAGE = arrayOf(
@@ -60,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        //Debug.waitForDebugger()
+        Debug.waitForDebugger()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -91,11 +94,32 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onContentChanged() {
+        super.onContentChanged()
+    }
+
     override fun onResume() {
         super.onResume()
         receiveData()
     }
 
+    override fun onPause() {
+        super.onPause()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState?.run {
+            val i =tableNameSpinner.selectedItemId.toInt()
+            putInt("TABLENAME", i)
+            tableNameSpinner.setSelection(i)
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        val i = savedInstanceState?.getInt("TABLENAME")
+        tableNameSpinner.setSelection(i)
+    }
 
     private fun receiveData() {
         //RECEIVE DATA VIA INTENT
@@ -107,9 +131,11 @@ class MainActivity : AppCompatActivity() {
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
             userName = name
+            viewModel.userName=name
         }
-
-
+        if(userName==null ||userName?.length==0) {
+            tableNameSpinner.setSelection(0)
+        }
     }
 
     private fun initViews() {
@@ -135,6 +161,8 @@ class MainActivity : AppCompatActivity() {
 
         progressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.INVISIBLE
+
+        inputUserDataFragment = InputUserDataFragment()
     }
 
 
@@ -149,6 +177,7 @@ class MainActivity : AppCompatActivity() {
         }
         resetButton.setOnClickListener { v: View? ->
             resetButton.visibility = View.GONE
+            createButton.visibility = View.GONE
             viewModel.reset()
         }
         prevButton.setOnClickListener { v: View? ->
@@ -188,18 +217,19 @@ class MainActivity : AppCompatActivity() {
                 l: Long
             ) {
                 tableName = testDbNames[i]
-                viewModel.changeTableName(tableName)
+
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE
 
                 testName = testsNames[i]
 
-                if (userName == null) {
-                    inputUserDataFragment = InputUserDataFragment()
+                if (i>0) {
+                    if (userName == null||userName?.length==0) {
+                        inputUserDataFragment.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
 
-                    inputUserDataFragment.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
+                    }
+                    viewModel.changeTableName(tableName)
                 }
-
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
@@ -257,6 +287,8 @@ class MainActivity : AppCompatActivity() {
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
                     createButton.visibility = View.VISIBLE
+
+                    viewModel.addResultsToDb()
                 }
                 Status.PRINTED -> {
                     progressBar.visibility = View.GONE
@@ -267,6 +299,9 @@ class MainActivity : AppCompatActivity() {
                     ).show()
                     Log.d("My_tag", "PRINTED to - " + filePath)
                     viewPdfFile(filePath)
+                }
+                Status.WRITING_RES_TO_DB -> {
+
                 }
             }
         }

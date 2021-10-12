@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import com.mironov.psychologicaltest.data.AnswerDatabase
 import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.QuestionRepository
@@ -35,7 +36,12 @@ class DaoTest {
         val questionDao = QuestionDatabase.getDatabase(
             appContext
         ).questionDao()
-        repository = QuestionRepository(questionDao)
+
+        val answerDao = AnswerDatabase.getDatabase(
+            appContext
+        ).answerDao()
+
+        repository = QuestionRepository(questionDao, answerDao)
 
         repository.getRowsCount("azenk_child").observeForever(object : Observer<Int?> {
             override fun onChanged(@Nullable sections: Int?) {
@@ -54,7 +60,12 @@ class DaoTest {
         val questionDao = QuestionDatabase.getDatabase(
             appContext
         ).questionDao()
-        repository = QuestionRepository(questionDao)
+
+        val answerDao = AnswerDatabase.getDatabase(
+            appContext
+        ).answerDao()
+
+        repository = QuestionRepository(questionDao, answerDao)
         readAllData = repository.getQuestionById("azenk_child",1)
 
         readAllData.observeForever(object : Observer<Question?> {

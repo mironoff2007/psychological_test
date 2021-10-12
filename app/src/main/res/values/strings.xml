@@ -2,12 +2,17 @@
     <string name="app_name">Psychological test</string>
 
     <string-array name="tests">
+        <item>nothing</item>
+        <item>azenk_child</item>
+        <item>vargi_stolen_par_rel</item>
+        <item>shmishek_leongard_character_and_temperament</item>
         <item>azenk_child</item>
         <item>vargi_stolen_par_rel</item>
         <item>shmishek_leongard_character_and_temperament</item>
     </string-array>
 
     <string-array name="testsNames">
+        <item>@string/choose_test</item>
         <item>Опросник Айзенка</item>
         <item>Варги—Столина(ОРО)</item>
         <item>Г. Шмишека, К. Леонгарда - Акцентуации характера и темперамента</item>
@@ -22,6 +27,7 @@
     <string name="button_save_user_data">сохранить</string>
     <string name="hint_input_user_data">Введите имя и фамилию</string>
     <string name="print_answer">Ответ - </string>
+    <string name="choose_test">Выберите тест</string>
 
 
 </resources>

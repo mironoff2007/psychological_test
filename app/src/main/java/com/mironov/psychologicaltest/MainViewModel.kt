@@ -5,21 +5,23 @@ import android.os.Build
 import android.text.Layout
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
 import androidx.lifecycle.Observer
 import com.mironov.psychologicaltest.constants.Status
+import com.mironov.psychologicaltest.data.AnswerDatabase
 import com.mironov.psychologicaltest.data.QuestionDatabase
+import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.QuestionRepository
 import com.mironov.psychologicaltest.util.PdfCreator
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.util.*
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    var i=1
+    var i = 1
     var questionId = 0
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
@@ -30,10 +32,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var currentQuestion: Question? = null
 
+    var userName: String? = null
+
     private lateinit var answer: String
-    private lateinit var answerYes:String
-    private lateinit var answerNo:String
-    lateinit var answerToPrintText:String
+    private lateinit var answerYes: String
+    private lateinit var answerNo: String
+    lateinit var answerToPrintText: String
 
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
@@ -44,18 +48,25 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val repository: QuestionRepository
 
     val pdfCreator = PdfCreator()
-    var path:String=""
+    var path: String = ""
 
     init {
         val questionDao = QuestionDatabase.getDatabase(
             application.applicationContext
         ).questionDao()
-        repository = QuestionRepository(questionDao)
+        val answerDao = AnswerDatabase.getDatabase(
+            application.applicationContext
+        ).answerDao()
+        repository = QuestionRepository(questionDao, answerDao)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.resetAnswerTable()//REMOVE -TODO-
+        }
     }
 
-    fun setAnswers(answerNo:String,answerYes:String){
-        this.answerNo=answerNo
-        this.answerYes=answerYes
+    fun setAnswers(answerNo: String, answerYes: String) {
+        this.answerNo = answerNo
+        this.answerYes = answerYes
     }
 
     fun changeTableName(tableName: String) {
@@ -111,6 +122,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getNextQuestion()
     }
 
+    fun addResultsToDb() {
+        val arr = answersQue.clone()
+
+        viewModelStatus.postValue(Status.WRITING_RES_TO_DB)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            for (i in 0 until arr.size) {
+                repository.addAnswer(
+                    Answer(
+                        (i.toString()+tableName+userName).hashCode() ,
+                        userName!!,
+                        tableName,
+                        i+1,
+                        arr.removeLast()
+                    )
+                )
+            }
+        }
+    }
+
     fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
         if (questionMaxId == 0)
@@ -140,10 +171,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun printResults(path: String) {
         viewModelStatus.postValue(Status.LOADING)
 
-        this.path=path
-        i=1
-            pdfCreator.createpdf(path,300,500)
-            printResultsLoop()
+        this.path = path
+        i = 1
+        pdfCreator.createpdf(path, 300, 500)
+        printResultsLoop()
     }
 
     fun printResultsLoop() {
@@ -156,16 +187,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
-                    pdfCreator.addLine("$i. "+q?.questionText,Layout.Alignment.ALIGN_NORMAL)
-                    pdfCreator.addLine(answerToPrintText+answersQue.removeLast(),Layout.Alignment.ALIGN_CENTER)
-                    pdfCreator.addLine("___________________________________________\n",Layout.Alignment.ALIGN_CENTER)
+                    pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)
+                    pdfCreator.addLine(
+                        answerToPrintText + answersQue.removeLast(),
+                        Layout.Alignment.ALIGN_CENTER
+                    )
+                    pdfCreator.addLine(
+                        "___________________________________________\n",
+                        Layout.Alignment.ALIGN_CENTER
+                    )
 
                     i++
                     printResultsLoop()
                 }
             })
         } else {
-            pdfCreator.addLine(calculation.getResultString(),Layout.Alignment.ALIGN_NORMAL )
+            pdfCreator.addLine(calculation.getResultString(), Layout.Alignment.ALIGN_NORMAL)
             pdfCreator.writePDF()
             viewModelStatus.postValue(Status.PRINTED)
         }
