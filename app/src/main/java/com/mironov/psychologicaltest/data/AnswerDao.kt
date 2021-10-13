@@ -11,7 +11,6 @@ interface AnswerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun addAnswer(answer: Answer)
-    //fun addAnswer(answer: SimpleSQLiteQuery)
 
     @Update
     suspend fun updateAnswer(answer: Answer)
@@ -22,13 +21,7 @@ interface AnswerDao {
     @Query("DELETE FROM Answer")
     fun resetTable( )
 
-    @RawQuery(observedEntities = [Answer::class])//"SELECT * FROM question_table ORDER BY id ASC"
-    fun readAllData(query: SupportSQLiteQuery): LiveData<List<Question?>>
-
-    @RawQuery(observedEntities = [Answer::class])//"SELECT * FROM question_table WHERE id =:id"
-    fun getQuestionById(query:SupportSQLiteQuery): LiveData<Question?>
-
-    @RawQuery(observedEntities = [Answer::class])//"SELECT COUNT(*) FROM question_table"
-    fun getRowsCount(query:SupportSQLiteQuery): LiveData<Int?>
+    @RawQuery(observedEntities = [Answer::class])
+    fun readAnswersByTest(query: SupportSQLiteQuery): LiveData<List<Answer?>>
 
 }

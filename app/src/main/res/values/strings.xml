@@ -28,6 +28,7 @@
     <string name="hint_input_user_data">Введите имя и фамилию</string>
     <string name="print_answer">Ответ - </string>
     <string name="choose_test">Выберите тест</string>
+    <string name="button_present_results">Результаты</string>
 
 
 </resources>

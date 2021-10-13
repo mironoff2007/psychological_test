@@ -19,7 +19,10 @@ import androidx.core.content.FileProvider
 import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
 
@@ -36,6 +39,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var prevButton: Button
     lateinit var resetButton: Button
     lateinit var createButton: Button
+    lateinit var presentButton: Button
 
     private lateinit var progressBar: ProgressBar
 
@@ -146,6 +150,7 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.prevButton)
         resetButton = findViewById(R.id.resetButton)
         createButton = findViewById(R.id.createButton)
+        presentButton = findViewById(R.id.presentResultsButton)
 
         questionText = findViewById(R.id.questionText)
         tableNameSpinner = findViewById(R.id.tableNameSpinner)
@@ -153,6 +158,7 @@ class MainActivity : AppCompatActivity() {
         resetButton.visibility = View.GONE
         prevButton.visibility = View.GONE
         createButton.visibility = View.GONE
+        presentButton.visibility=View.GONE
 
         createButton.isEnabled = false
         noButton.isEnabled = false
@@ -178,6 +184,7 @@ class MainActivity : AppCompatActivity() {
         resetButton.setOnClickListener { v: View? ->
             resetButton.visibility = View.GONE
             createButton.visibility = View.GONE
+            resetButton.visibility=View.GONE
             viewModel.reset()
         }
         prevButton.setOnClickListener { v: View? ->
@@ -189,6 +196,13 @@ class MainActivity : AppCompatActivity() {
             createButton.isEnabled = false
             filePath = rootPath + userName + "-" + testName + ".pdf"
             viewModel.printResults(filePath)
+        }
+        presentButton.setOnClickListener { v: View? ->
+            val intent = Intent(this, ResultsActivity::class.java)
+            intent.putExtra(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
+            intent.putExtra(KEY_USER_NAME, userName)
+            intent.putExtra(KEY_TEST_NAME, tableName)
+            this.startActivity(intent)
         }
 
     }
@@ -254,6 +268,7 @@ class MainActivity : AppCompatActivity() {
                     noButton.visibility = View.VISIBLE
                     yesButton.visibility = View.VISIBLE
                     progressBar.visibility = View.INVISIBLE
+
                     Log.d("My_tag", "-------")
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
@@ -287,6 +302,7 @@ class MainActivity : AppCompatActivity() {
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
                     createButton.visibility = View.VISIBLE
+                    presentButton.visibility=View.VISIBLE
 
                     viewModel.addResultsToDb()
                 }

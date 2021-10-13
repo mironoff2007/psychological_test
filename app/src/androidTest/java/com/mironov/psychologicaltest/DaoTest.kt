@@ -9,7 +9,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.mironov.psychologicaltest.data.AnswerDatabase
 import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Question
-import com.mironov.psychologicaltest.repository.QuestionRepository
+import com.mironov.psychologicaltest.repository.Repository
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -31,7 +31,7 @@ class DaoTest {
     fun getAllQuestions() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
-        val repository: QuestionRepository
+        val repository: Repository
 
         val questionDao = QuestionDatabase.getDatabase(
             appContext
@@ -41,7 +41,7 @@ class DaoTest {
             appContext
         ).answerDao()
 
-        repository = QuestionRepository(questionDao, answerDao)
+        repository = Repository(questionDao, answerDao)
 
         repository.getRowsCount("azenk_child").observeForever(object : Observer<Int?> {
             override fun onChanged(@Nullable sections: Int?) {
@@ -55,7 +55,7 @@ class DaoTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
         val readAllData: LiveData<Question?>
-        val repository: QuestionRepository
+        val repository: Repository
 
         val questionDao = QuestionDatabase.getDatabase(
             appContext
@@ -65,7 +65,7 @@ class DaoTest {
             appContext
         ).answerDao()
 
-        repository = QuestionRepository(questionDao, answerDao)
+        repository = Repository(questionDao, answerDao)
         readAllData = repository.getQuestionById("azenk_child",1)
 
         readAllData.observeForever(object : Observer<Question?> {

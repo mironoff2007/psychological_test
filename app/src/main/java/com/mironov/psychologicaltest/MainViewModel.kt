@@ -3,6 +3,7 @@ package com.mironov.psychologicaltest
 import android.app.Application
 import android.os.Build
 import android.text.Layout
+import android.util.Log
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
@@ -13,7 +14,7 @@ import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
-import com.mironov.psychologicaltest.repository.QuestionRepository
+import com.mironov.psychologicaltest.repository.Repository
 import com.mironov.psychologicaltest.util.PdfCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,7 +46,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     private lateinit var tableName: String
 
-    private val repository: QuestionRepository
+    private val repository: Repository
 
     val pdfCreator = PdfCreator()
     var path: String = ""
@@ -57,10 +58,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         val answerDao = AnswerDatabase.getDatabase(
             application.applicationContext
         ).answerDao()
-        repository = QuestionRepository(questionDao, answerDao)
+        repository = Repository(questionDao, answerDao)
 
         viewModelScope.launch(Dispatchers.IO) {
-            repository.resetAnswerTable()//REMOVE -TODO-
+            //repository.resetAnswerTable()//REMOVE -TODO-
         }
     }
 
@@ -181,7 +182,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getQuestionByIdForPrint(i)
     }
 
-    fun getQuestionByIdForPrint(id: Int) {
+    private fun getQuestionByIdForPrint(id: Int) {
         if (id <= questionMaxId) {
             repository.getQuestionById(tableName, id).observeForever(object : Observer<Question?> {
                 @RequiresApi(Build.VERSION_CODES.N)
@@ -207,5 +208,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             viewModelStatus.postValue(Status.PRINTED)
         }
     }
+
+    fun readAnswersByTest(userName:String,testName:String) {
+        repository.readAnswersByTest(testName,userName).observeForever(object : Observer<List<Answer?>>{
+            override fun onChanged(t: List<Answer?>) {
+                t.forEach(){v-> Log.d("My_tag",v.toString())}
+            }
+        })
+    }
 }
+
+
+
 
