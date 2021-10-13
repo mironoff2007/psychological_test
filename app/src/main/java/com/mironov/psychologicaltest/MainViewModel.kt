@@ -168,7 +168,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getQuestionById(questionId)
     }
 
-
+    //-TODO- move to ResultsViewModel
     fun printResults(path: String) {
         viewModelStatus.postValue(Status.LOADING)
 
@@ -178,10 +178,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         printResultsLoop()
     }
 
+    //-TODO- move to ResultsViewModel
     fun printResultsLoop() {
         getQuestionByIdForPrint(i)
     }
 
+    //-TODO- move to ResultsViewModel
     private fun getQuestionByIdForPrint(id: Int) {
         if (id <= questionMaxId) {
             repository.getQuestionById(tableName, id).observeForever(object : Observer<Question?> {
@@ -209,13 +211,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun readAnswersByTest(userName:String,testName:String) {
-        repository.readAnswersByTest(testName,userName).observeForever(object : Observer<List<Answer?>>{
-            override fun onChanged(t: List<Answer?>) {
-                t.forEach(){v-> Log.d("My_tag",v.toString())}
-            }
-        })
-    }
 }
 
 

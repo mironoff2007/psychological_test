@@ -11,7 +11,6 @@ import android.content.Intent
 import android.widget.EditText
 
 import android.text.InputFilter
-import com.mironov.psychologicaltest.constants.KeysContainer
 import com.mironov.psychologicaltest.MainActivity
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT

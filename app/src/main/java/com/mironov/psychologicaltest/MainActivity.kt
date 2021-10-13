@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        Debug.waitForDebugger()
+        //Debug.waitForDebugger()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -158,7 +158,7 @@ class MainActivity : AppCompatActivity() {
         resetButton.visibility = View.GONE
         prevButton.visibility = View.GONE
         createButton.visibility = View.GONE
-        presentButton.visibility=View.GONE
+        //presentButton.visibility=View.GONE
 
         createButton.isEnabled = false
         noButton.isEnabled = false
@@ -234,6 +234,7 @@ class MainActivity : AppCompatActivity() {
 
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE
+                //presentButton.visibility=View.GONE
 
                 testName = testsNames[i]
 
@@ -302,7 +303,7 @@ class MainActivity : AppCompatActivity() {
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
                     createButton.visibility = View.VISIBLE
-                    presentButton.visibility=View.VISIBLE
+                    presentButton.visibility= View.VISIBLE
 
                     viewModel.addResultsToDb()
                 }

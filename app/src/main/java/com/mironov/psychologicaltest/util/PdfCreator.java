@@ -4,7 +4,6 @@ package com.mironov.psychologicaltest.util;
 import android.graphics.Canvas;
 
 import android.graphics.Paint;
-import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfDocument;
 import android.text.DynamicLayout;

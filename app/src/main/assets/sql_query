@@ -1,0 +1,2 @@
+
+SELECT azenk_child.id,azenk_child.questionText, Answer.answer  FROM Answer  LEFT JOIN azenk_child ON Answer.questionId = azenk_child.id ORDER BY azenk_child.id

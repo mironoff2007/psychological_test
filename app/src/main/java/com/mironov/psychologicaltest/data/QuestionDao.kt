@@ -1,7 +1,6 @@
 package com.mironov.psychologicaltest.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.mironov.psychologicaltest.model.Question

@@ -31,4 +31,13 @@ class Repository(private val questionDao: QuestionDao,private val answerDao: Ans
         return answerDao.readAnswersByTest(SimpleSQLiteQuery("SELECT * FROM Answer WHERE testName='$testName' AND user='$userName'"))
     }
 
+    //SELECT DISTINCT Answer.user  FROM Answer
+    fun readUsers(): LiveData<List<String?>> {
+        return answerDao.readUsers()
+    }
+
+    //SELECT DISTINCT Answer.testName  FROM Answer Where Answer.user='миронов'
+    fun readFinishedTest(userName: String): LiveData<List<String?>> {
+        return answerDao.readFinishedTests(userName)
+    }
 }
