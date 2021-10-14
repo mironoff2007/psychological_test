@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
+import android.widget.TextView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -31,6 +32,8 @@ class ResultsActivity : AppCompatActivity() {
 
     private lateinit var testNameSpinner: Spinner
     private lateinit var userNameSpinner: Spinner
+
+    private lateinit var resultText: TextView
 
     lateinit var viewModel: ResultsViewModel
 
@@ -58,6 +61,8 @@ class ResultsActivity : AppCompatActivity() {
         userNameSpinner = findViewById(R.id.spinner_users)
         testNameSpinner = findViewById(R.id.spinner_tests)
 
+        resultText = findViewById(R.id.result_text)
+
         //viewModel.readAnswersByTest(userName.toString(), testName.toString())
         viewModel.readUsers()
 
@@ -73,8 +78,10 @@ class ResultsActivity : AppCompatActivity() {
 
         val map=testDbNames.zip(testsNames).toMap()
 
+        userTestNames.clear()
+
         testsList.forEach { v->
-            userTestNames.add(map.get(v))
+            userTestNames.add(map[v])
         }
 
         val adapter: ArrayAdapter<*> = ArrayAdapter(
@@ -94,6 +101,10 @@ class ResultsActivity : AppCompatActivity() {
                 l: Long
             ) {
                 selectedTest= testsList[i]
+
+                resultText.text=viewModel.getResultToPrefs(selectedUser!!,selectedTest!!)
+
+
                 Log.d("My_tag","Selected table ="+selectedTest)
             }
 
@@ -151,4 +162,6 @@ class ResultsActivity : AppCompatActivity() {
             }
         }
     }
+
+
 }

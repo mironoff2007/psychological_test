@@ -8,6 +8,7 @@ import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
+import com.mironov.currency_converter.data.DataShared
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.data.AnswerDatabase
 import com.mironov.psychologicaltest.data.QuestionDatabase
@@ -27,8 +28,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
 
-    lateinit var questionsList:ArrayList<String?>
-
     var answersQue: ArrayDeque<String> = ArrayDeque<String>()
 
     var returned: Boolean = false
@@ -44,7 +43,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
+
     val calculation: Calculation = Calculation()
+
+    lateinit var sharedPrefs: DataShared
 
     private lateinit var tableName: String
 
@@ -62,12 +64,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ).answerDao()
         repository = Repository(questionDao, answerDao)
 
-
-        questionsList=arrayListOf<String?>()
-
         viewModelScope.launch(Dispatchers.IO) {
             //repository.resetAnswerTable()//REMOVE -TODO-
         }
+
+        sharedPrefs=DataShared(application.applicationContext)
     }
 
     fun setAnswers(answerNo: String, answerYes: String) {
@@ -88,7 +89,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
-                    questionsList.add(currentQuestion!!.id-1, currentQuestion?.questionText)
+
                     if (returned) {
                         returned = false
                         calculation.addAnswer(currentQuestion, answersQue.removeFirst(), -1)
@@ -131,6 +132,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addResultsToDb() {
+        saveResultToPrefs()
         val arr = answersQue.clone()
 
         viewModelStatus.postValue(Status.WRITING_RES_TO_DB)
@@ -143,7 +145,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         userName!!,
                         tableName,
                         i+1,
-                        questionsList[i].toString(),
                         arr.removeLast()
                     )
                 )
@@ -219,6 +220,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+
+    fun saveResultToPrefs(){
+        sharedPrefs.saveResults(calculation.getResultString(),userName+tableName)
+    }
+
+    fun getResultToPrefs(userName:String, tableName:String):String{
+        return sharedPrefs.getResult(userName+tableName)
+    }
 }
 
 
