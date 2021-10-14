@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.mironov.psychologicaltest.model.Answer
+import com.mironov.psychologicaltest.model.Question
 
 @Dao
 interface AnswerDao {
@@ -22,7 +23,6 @@ interface AnswerDao {
 
     @RawQuery(observedEntities = [Answer::class])
     fun readAnswersByTest(query: SupportSQLiteQuery): LiveData<List<Answer?>>
-
 
 
     @Query("SELECT DISTINCT Answer.user  FROM Answer")

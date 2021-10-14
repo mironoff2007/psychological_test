@@ -22,6 +22,8 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     lateinit var usersList:ArrayList<String?>
     lateinit var testsList:ArrayList<String?>
 
+    lateinit var questionsList:ArrayList<String?>
+
     val resultsModelStatus: MutableLiveData<ResultsStatus> = MutableLiveData<ResultsStatus>()
 
     init {

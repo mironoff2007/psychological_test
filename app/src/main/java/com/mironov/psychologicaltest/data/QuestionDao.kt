@@ -26,4 +26,10 @@ interface QuestionDao {
     @RawQuery(observedEntities = [Question::class])//"SELECT COUNT(*) FROM question_table"
     fun getRowsCount(query:SupportSQLiteQuery): LiveData<Int?>
 
+    /*
+    @Query("SELECT questionText  FROM :tableName")
+    fun getAllQuestions(tableName:String): LiveData<List<String?>>
+
+     */
+
 }

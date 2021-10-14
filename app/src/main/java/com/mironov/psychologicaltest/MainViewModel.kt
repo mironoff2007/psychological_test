@@ -27,6 +27,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
 
+    lateinit var questionsList:ArrayList<String?>
+
     var answersQue: ArrayDeque<String> = ArrayDeque<String>()
 
     var returned: Boolean = false
@@ -60,6 +62,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ).answerDao()
         repository = Repository(questionDao, answerDao)
 
+
+        questionsList=arrayListOf<String?>()
+
         viewModelScope.launch(Dispatchers.IO) {
             //repository.resetAnswerTable()//REMOVE -TODO-
         }
@@ -83,9 +88,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
+                    questionsList.add(currentQuestion!!.id-1, currentQuestion?.questionText)
                     if (returned) {
                         returned = false
                         calculation.addAnswer(currentQuestion, answersQue.removeFirst(), -1)
+
                     }
                     if (questionId == 1) {
                         viewModelStatus.postValue(Status.FIRST)
@@ -136,6 +143,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         userName!!,
                         tableName,
                         i+1,
+                        questionsList[i].toString(),
                         arr.removeLast()
                     )
                 )

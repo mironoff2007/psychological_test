@@ -13,5 +13,6 @@ data class Answer(
     val user: String,
     val testName: String,
     val questionId:Int,
+    val questionText:String,
     val answer:String,
 ): Parcelable

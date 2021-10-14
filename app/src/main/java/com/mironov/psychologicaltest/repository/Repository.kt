@@ -27,7 +27,6 @@ class Repository(private val questionDao: QuestionDao,private val answerDao: Ans
     }
 
     fun readAnswersByTest(testName:String, userName:String): LiveData<List<Answer?>>{
-        Log.d("My_tag","SELECT * FROM Answer WHERE testName=$testName AND user=$userName")
         return answerDao.readAnswersByTest(SimpleSQLiteQuery("SELECT * FROM Answer WHERE testName='$testName' AND user='$userName'"))
     }
 
@@ -40,4 +39,5 @@ class Repository(private val questionDao: QuestionDao,private val answerDao: Ans
     fun readFinishedTest(userName: String): LiveData<List<String?>> {
         return answerDao.readFinishedTests(userName)
     }
+
 }

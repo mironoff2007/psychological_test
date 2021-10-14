@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -22,9 +23,11 @@ class ResultsActivity : AppCompatActivity() {
     private var testName: String? = null
 
     private var selectedUser: String? = null
+    private var selectedTest: String? = null
 
     lateinit var usersList:ArrayList<String?>
     lateinit var testsList:ArrayList<String?>
+    lateinit var userTestNames:ArrayList<String?>
 
     private lateinit var testNameSpinner: Spinner
     private lateinit var userNameSpinner: Spinner
@@ -36,7 +39,7 @@ class ResultsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results_presenter)
 
-
+        userTestNames=arrayListOf<String?>()
 
         val sender = this.intent.extras?.getString(KeysContainer.KEY_SENDER)
 
@@ -53,6 +56,8 @@ class ResultsActivity : AppCompatActivity() {
         setupObserver()
 
         userNameSpinner = findViewById(R.id.spinner_users)
+        testNameSpinner = findViewById(R.id.spinner_tests)
+
         //viewModel.readAnswersByTest(userName.toString(), testName.toString())
         viewModel.readUsers()
 
@@ -66,10 +71,15 @@ class ResultsActivity : AppCompatActivity() {
         val testDbNames = resources.getStringArray(R.array.tests)
         val testsNames = resources.getStringArray(R.array.testsNames)
 
-        val adapter: ArrayAdapter<*> = ArrayAdapter.createFromResource(
+        val map=testDbNames.zip(testsNames).toMap()
+
+        testsList.forEach { v->
+            userTestNames.add(map.get(v))
+        }
+
+        val adapter: ArrayAdapter<*> = ArrayAdapter(
             this,
-            R.array.testsNames,
-            android.R.layout.simple_spinner_item
+            android.R.layout.simple_spinner_item,userTestNames
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
@@ -83,7 +93,8 @@ class ResultsActivity : AppCompatActivity() {
                 i: Int,
                 l: Long
             ) {
-
+                selectedTest= testsList[i]
+                Log.d("My_tag","Selected table ="+selectedTest)
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -114,6 +125,7 @@ class ResultsActivity : AppCompatActivity() {
             ) {
                 selectedUser = usersList[i]
                 viewModel.readFinishedTest(selectedUser.toString())
+
             }
 
             override fun onNothingSelected(p0: AdapterView<*>?) {
@@ -127,11 +139,13 @@ class ResultsActivity : AppCompatActivity() {
             when (it) {
                 ResultsStatus.TEST_NAMES_LOADED -> {
                     testsList=viewModel.testsList
+                    initSpinnerTables()
                 }
                 ResultsStatus.USERS_LOADED -> {
                     usersList=viewModel.usersList
                     initSpinnerUsers()
                     userNameSpinner.setSelection(usersList.indexOf(userName))
+
                 }
 
             }
