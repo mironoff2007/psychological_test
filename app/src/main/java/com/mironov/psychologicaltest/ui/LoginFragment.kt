@@ -62,6 +62,10 @@ class LoginFragment : DialogFragment() {
         return rootView
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        inputNameText.isCursorVisible=false
+    }
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)

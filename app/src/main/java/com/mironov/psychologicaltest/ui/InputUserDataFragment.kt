@@ -1,16 +1,15 @@
 package com.mironov.psychologicaltest.ui
 
 import android.content.DialogInterface
+import android.content.Intent
 import android.os.Bundle
+import android.text.InputFilter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.DialogFragment
 import android.widget.Button
-import android.content.Intent
 import android.widget.EditText
-
-import android.text.InputFilter
+import androidx.fragment.app.DialogFragment
 import com.mironov.psychologicaltest.MainActivity
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
@@ -20,11 +19,11 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 
 class InputUserDataFragment : DialogFragment() {
 
-    lateinit var sendBtn:Button
+    lateinit var sendBtn: Button
 
-    lateinit var inputNameText:EditText
+    lateinit var inputNameText: EditText
 
-    var testId=0
+    var testId = 0
 
     private val blockCharacterSet = "~#^|$%&*!.,\\/"
 
@@ -33,16 +32,16 @@ class InputUserDataFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val rootView: View = inflater.inflate(R.layout.input_dialog_fragment, container,  false)
+        val rootView: View = inflater.inflate(R.layout.input_dialog_fragment, container, false)
 
         inputNameText = rootView.findViewById<View>(R.id.textInputLayout) as EditText
 
         inputNameText.filters = arrayOf(filter)
 
-        val bundle= arguments
-        testId= bundle?.getInt(KEY_TEST_ID,0)!!
+        val bundle = arguments
+        testId = bundle?.getInt(KEY_TEST_ID, 0)!!
 
-        sendBtn  = rootView.findViewById<View>(R.id.sendBtn) as Button
+        sendBtn = rootView.findViewById<View>(R.id.sendBtn) as Button
         sendBtn.setOnClickListener { sendData(inputNameText.text.toString()) }
 
         return rootView
@@ -55,16 +54,19 @@ class InputUserDataFragment : DialogFragment() {
         dismiss()
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        inputNameText.isCursorVisible = false
+    }
 
-
-        private val filter =
+    private val filter =
         InputFilter { source, start, end, dest, dstart, dend ->
             if (source != null && blockCharacterSet.contains("" + source)) {
                 ""
             } else null
         }
 
-    private fun sendData(text:String) {
+    private fun sendData(text: String) {
         //INTENT OBJ
         val i = Intent(requireActivity().baseContext, MainActivity::class.java)
 

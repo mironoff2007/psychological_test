@@ -75,12 +75,13 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.getItemId()) {
             R.id.action_settings -> {
-
+                loginFragment = LoginFragment()
                 var bundle =Bundle()
                 bundle.putString(KEY_USER_NAME,userName)
                 bundle.putString(KEY_TEST_NAME,testName)
                 loginFragment!!.arguments=bundle
                 loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
+                loginFragment=null
                 true
             }
             R.id.new_user -> {
@@ -181,8 +182,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-        inputUserDataFragment = InputUserDataFragment()
-        loginFragment = LoginFragment()
 
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
@@ -276,7 +275,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requesNewUserName() {
-        var bundle =Bundle()
+        inputUserDataFragment = InputUserDataFragment()
+        val bundle =Bundle()
         bundle.putInt(KEY_TEST_ID,selectedTableId)
         inputUserDataFragment!!.arguments=bundle
         inputUserDataFragment!!.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
