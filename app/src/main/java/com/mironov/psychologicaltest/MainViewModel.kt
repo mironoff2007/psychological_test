@@ -2,8 +2,6 @@ package com.mironov.psychologicaltest
 
 import android.app.Application
 import android.os.Build
-import android.text.Layout
-import android.util.Log
 import androidx.annotation.Nullable
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
@@ -27,6 +25,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var questionId = 0
     var questionMaxId = 0
     lateinit var mutableMaxCount: LiveData<Int?>
+    lateinit var questionRequest: LiveData<Question?>
 
     var answersQue: ArrayDeque<String> = ArrayDeque<String>()
 
@@ -85,7 +84,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     fun getQuestionById(id: Int) {
         if (id <= questionMaxId) {
             viewModelStatus.postValue(Status.LOADING)
-            repository.getQuestionById(tableName, id).observeForever(object : Observer<Question?> {
+           questionRequest= repository.getQuestionById(tableName, id)
+            questionRequest.observeForever(object : Observer<Question?> {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
@@ -95,6 +95,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         calculation.addAnswer(currentQuestion, answersQue.removeFirst(), -1)
 
                     }
+                    questionRequest.removeObserver(this)
                     if (questionId == 1) {
                         viewModelStatus.postValue(Status.FIRST)
                     } else {
@@ -175,49 +176,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         returned = true
         questionId -= 1
         getQuestionById(questionId)
-    }
-
-    //-TODO- move to ResultsViewModel
-    fun printResults(path: String) {
-        viewModelStatus.postValue(Status.LOADING)
-
-        this.path = path
-        i = 1
-        pdfCreator.createpdf(path, 300, 500)
-        printResultsLoop()
-    }
-
-    //-TODO- move to ResultsViewModel
-    fun printResultsLoop() {
-        getQuestionByIdForPrint(i)
-    }
-
-    //-TODO- move to ResultsViewModel
-    private fun getQuestionByIdForPrint(id: Int) {
-        if (id <= questionMaxId) {
-            repository.getQuestionById(tableName, id).observeForever(object : Observer<Question?> {
-                @RequiresApi(Build.VERSION_CODES.N)
-                override fun onChanged(q: Question?) {
-                    currentQuestion = q
-                    pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)
-                    pdfCreator.addLine(
-                        answerToPrintText + answersQue.removeLast(),
-                        Layout.Alignment.ALIGN_CENTER
-                    )
-                    pdfCreator.addLine(
-                        "___________________________________________\n",
-                        Layout.Alignment.ALIGN_CENTER
-                    )
-
-                    i++
-                    printResultsLoop()
-                }
-            })
-        } else {
-            pdfCreator.addLine(calculation.getResultString(), Layout.Alignment.ALIGN_NORMAL)
-            pdfCreator.writePDF()
-            viewModelStatus.postValue(Status.PRINTED)
-        }
     }
 
 

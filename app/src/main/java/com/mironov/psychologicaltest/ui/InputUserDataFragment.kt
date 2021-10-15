@@ -15,6 +15,7 @@ import com.mironov.psychologicaltest.MainActivity
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 
 
 class InputUserDataFragment : DialogFragment() {
@@ -22,6 +23,8 @@ class InputUserDataFragment : DialogFragment() {
     lateinit var sendBtn:Button
 
     lateinit var inputNameText:EditText
+
+    var testId=0
 
     private val blockCharacterSet = "~#^|$%&*!.,\\/"
 
@@ -36,7 +39,10 @@ class InputUserDataFragment : DialogFragment() {
 
         inputNameText.filters = arrayOf(filter)
 
-        sendBtn = rootView.findViewById<View>(R.id.sendBtn) as Button
+        val bundle= arguments
+        testId= bundle?.getInt(KEY_TEST_ID,0)!!
+
+        sendBtn  = rootView.findViewById<View>(R.id.sendBtn) as Button
         sendBtn.setOnClickListener { sendData(inputNameText.text.toString()) }
 
         return rootView
@@ -64,12 +70,15 @@ class InputUserDataFragment : DialogFragment() {
         //PACK DATA
         i.putExtra(KEY_SENDER, KEY_NAME_FRAGMENT)
         i.putExtra(KEY_NAME_FRAGMENT, text)
+        i.putExtra(KEY_TEST_ID, testId)
 
         //RESET WIDGETS
         inputNameText.setText("")
 
         //START ACTIVITY
+
         requireActivity().startActivity(i)
+
         dismiss()
     }
 }

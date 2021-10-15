@@ -4,7 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.mironov.psychologicaltest.model.Answer
-import com.mironov.psychologicaltest.model.Question
 
 @Dao
 interface AnswerDao {

@@ -7,5 +7,6 @@ object KeysContainer {
     const val KEY_SENDER="KEY_SENDER"
     const val KEY_USER_NAME="KEY_USER_NAME"
     const val KEY_TEST_NAME="KEY_TEST_NAME"
+    const val KEY_TEST_ID="KEY_TEST_ID"
 
 }

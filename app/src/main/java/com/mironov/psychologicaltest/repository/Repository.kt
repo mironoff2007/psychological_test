@@ -1,6 +1,5 @@
 package com.mironov.psychologicaltest.repository
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.mironov.psychologicaltest.data.AnswerDao
@@ -27,7 +26,7 @@ class Repository(private val questionDao: QuestionDao,private val answerDao: Ans
     }
 
     fun readAnswersByTest(testName:String, userName:String): LiveData<List<Answer?>>{
-        return answerDao.readAnswersByTest(SimpleSQLiteQuery("SELECT * FROM Answer WHERE testName='$testName' AND user='$userName'"))
+        return answerDao.readAnswersByTest(SimpleSQLiteQuery("SELECT * FROM Answer WHERE testName='$testName' AND user='$userName' ORDER BY Answer.questionID"))
     }
 
     //SELECT DISTINCT Answer.user  FROM Answer

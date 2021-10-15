@@ -13,14 +13,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
-import android.os.Debug
-import java.io.File
-import androidx.core.content.FileProvider
 import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
@@ -30,7 +28,7 @@ import com.mironov.psychologicaltest.ui.InputUserDataFragment
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var inputUserDataFragment: InputUserDataFragment
+    var inputUserDataFragment: InputUserDataFragment? = null
 
     lateinit var viewModel: MainViewModel
 
@@ -38,7 +36,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var noButton: Button
     lateinit var prevButton: Button
     lateinit var resetButton: Button
-    lateinit var createButton: Button
+
     lateinit var presentButton: Button
 
     private lateinit var progressBar: ProgressBar
@@ -131,14 +129,19 @@ class MainActivity : AppCompatActivity() {
         //DETERMINE WHO STARTED THIS ACTIVITY
         val sender = this.intent.extras?.getString(KEY_SENDER)
 
+        var testId=0
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
+            testId = intent.getIntExtra(KEY_TEST_ID,0)
             userName = name
             viewModel.userName=name
         }
         if(userName==null ||userName?.length==0) {
             tableNameSpinner.setSelection(0)
+        }
+        else{
+            tableNameSpinner.setSelection(testId)
         }
     }
 
@@ -149,7 +152,7 @@ class MainActivity : AppCompatActivity() {
         noButton = findViewById(R.id.noButton)
         prevButton = findViewById(R.id.prevButton)
         resetButton = findViewById(R.id.resetButton)
-        createButton = findViewById(R.id.createButton)
+
         presentButton = findViewById(R.id.presentResultsButton)
 
         questionText = findViewById(R.id.questionText)
@@ -157,10 +160,7 @@ class MainActivity : AppCompatActivity() {
 
         resetButton.visibility = View.GONE
         prevButton.visibility = View.GONE
-        createButton.visibility = View.GONE
-        //presentButton.visibility=View.GONE
 
-        createButton.isEnabled = false
         noButton.isEnabled = false
         yesButton.isEnabled = false
         prevButton.isEnabled = false
@@ -183,7 +183,6 @@ class MainActivity : AppCompatActivity() {
         }
         resetButton.setOnClickListener { v: View? ->
             resetButton.visibility = View.GONE
-            createButton.visibility = View.GONE
             resetButton.visibility=View.GONE
             viewModel.reset()
         }
@@ -191,12 +190,6 @@ class MainActivity : AppCompatActivity() {
             viewModel.prevQuestion()
         }
 
-        createButton.setOnClickListener { v: View? ->
-            createButton.visibility = View.GONE
-            createButton.isEnabled = false
-            filePath = rootPath + userName + "-" + testName + ".pdf"
-            viewModel.printResults(filePath)
-        }
         presentButton.setOnClickListener { v: View? ->
             val intent = Intent(this, ResultsActivity::class.java)
             intent.putExtra(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
@@ -220,7 +213,6 @@ class MainActivity : AppCompatActivity() {
         )
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
 
-
         tableNameSpinner.adapter = adapter
 
         tableNameSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -234,15 +226,17 @@ class MainActivity : AppCompatActivity() {
 
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE
-                createButton.visibility= View.GONE
-                //presentButton.visibility=View.GONE
+
 
                 testName = testsNames[i]
 
                 if (i>0) {
                     if (userName == null||userName?.length==0) {
-                        inputUserDataFragment.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
-
+                        var bundle =Bundle()
+                        bundle.putInt(KEY_TEST_ID,i)
+                        inputUserDataFragment!!.arguments=bundle
+                        inputUserDataFragment!!.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
+                        inputUserDataFragment=null
                     }
                     viewModel.changeTableName(tableName)
                 }
@@ -293,17 +287,16 @@ class MainActivity : AppCompatActivity() {
                     progressBar.visibility = View.VISIBLE
                 }
                 Status.DONE -> {
-                    questionText.text = viewModel.calculation.getResultString()
+                    questionText.text = "Закончен"
                     Log.d("My_tag", viewModel.calculation.getResultString())
                     noButton.isEnabled = false
                     yesButton.isEnabled = false
-                    createButton.isEnabled = true
 
                     noButton.visibility = View.GONE
                     yesButton.visibility = View.GONE
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
-                    createButton.visibility = View.VISIBLE
+
                     presentButton.visibility= View.VISIBLE
 
                     viewModel.addResultsToDb()
@@ -316,7 +309,7 @@ class MainActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                     Log.d("My_tag", "PRINTED to - " + filePath)
-                    viewPdfFile(filePath)
+
                 }
                 Status.WRITING_RES_TO_DB -> {
 
@@ -326,17 +319,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun viewPdfFile(path: String?) {
-        val file = File(path)
-        val intent = Intent(
-            Intent.ACTION_VIEW,
-            FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".provider", file)
-        )
-        intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
-        intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-
-        startActivity(intent)
-    }
 }
 
 
