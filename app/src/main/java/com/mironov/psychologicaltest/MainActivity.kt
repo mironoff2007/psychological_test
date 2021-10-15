@@ -13,6 +13,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
@@ -40,8 +42,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var prevButton: Button
     lateinit var resetButton: Button
 
-    lateinit var presentButton: Button
-
     private lateinit var progressBar: ProgressBar
 
     private lateinit var tableNameSpinner: Spinner
@@ -66,6 +66,31 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
 
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.getItemId()) {
+            R.id.action_settings -> {
+
+                var bundle =Bundle()
+                bundle.putString(KEY_USER_NAME,userName)
+                bundle.putString(KEY_TEST_NAME,testName)
+                loginFragment!!.arguments=bundle
+                loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
+                true
+            }
+            R.id.new_user -> {
+                userName=null
+                requesNewUserName()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +126,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        inputUserDataFragment=null
+        loginFragment=null
+    }
     override fun onContentChanged() {
         super.onContentChanged()
     }
@@ -159,8 +189,6 @@ class MainActivity : AppCompatActivity() {
         prevButton = findViewById(R.id.prevButton)
         resetButton = findViewById(R.id.resetButton)
 
-        presentButton = findViewById(R.id.presentResultsButton)
-
         questionText = findViewById(R.id.questionText)
         tableNameSpinner = findViewById(R.id.tableNameSpinner)
 
@@ -173,8 +201,6 @@ class MainActivity : AppCompatActivity() {
 
         progressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.INVISIBLE
-
-
 
     }
 
@@ -195,18 +221,6 @@ class MainActivity : AppCompatActivity() {
         }
         prevButton.setOnClickListener { v: View? ->
             viewModel.prevQuestion()
-        }
-
-        presentButton.setOnClickListener { v: View? ->
-
-            var bundle =Bundle()
-            //bundle.putInt(KEY_TEST_ID,selectedTableId)
-            bundle.putString(KEY_USER_NAME,userName)
-            bundle.putString(KEY_TEST_NAME,testName)
-            loginFragment!!.arguments=bundle
-            loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
-            loginFragment=null
-
         }
 
     }
@@ -242,14 +256,11 @@ class MainActivity : AppCompatActivity() {
 
 
                 testName = testsNames[i]
+                selectedTableId=i
 
                 if (i>0) {
                     if (userName == null||userName?.length==0) {
-                        var bundle =Bundle()
-                        bundle.putInt(KEY_TEST_ID,i)
-                        inputUserDataFragment!!.arguments=bundle
-                        inputUserDataFragment!!.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
-                        inputUserDataFragment=null
+                       requesNewUserName()
                     }
                     viewModel.changeTableName(tableName)
                 }
@@ -262,6 +273,14 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    private fun requesNewUserName() {
+        var bundle =Bundle()
+        bundle.putInt(KEY_TEST_ID,selectedTableId)
+        inputUserDataFragment!!.arguments=bundle
+        inputUserDataFragment!!.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
+        inputUserDataFragment=null
     }
 
     @SuppressLint("SetTextI18n")
@@ -309,8 +328,6 @@ class MainActivity : AppCompatActivity() {
                     yesButton.visibility = View.GONE
                     prevButton.visibility = View.GONE
                     resetButton.visibility = View.VISIBLE
-
-                    presentButton.visibility= View.VISIBLE
 
                     viewModel.addResultsToDb()
                 }

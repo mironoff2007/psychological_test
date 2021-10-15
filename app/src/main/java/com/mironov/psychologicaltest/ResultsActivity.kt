@@ -12,11 +12,11 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
-import kotlinx.android.synthetic.main.activity_main.*
+
+import kotlinx.android.synthetic.main.input_dialog_fragment.*
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
@@ -120,6 +120,10 @@ class ResultsActivity : AppCompatActivity() {
                 TODO("Not yet implemented")
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     private fun initSpinnerUsers() {

@@ -11,13 +11,13 @@ import android.content.Intent
 import android.widget.EditText
 
 import android.text.InputFilter
-import com.mironov.psychologicaltest.MainActivity
+import android.widget.TextView
+import android.widget.Toast
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.ResultsActivity
 import com.mironov.psychologicaltest.constants.KeysContainer
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.security.LoginProvider
@@ -28,6 +28,7 @@ class LoginFragment : DialogFragment() {
     lateinit var sendBtn:Button
 
     lateinit var inputNameText:EditText
+    lateinit var textView: TextView
 
     var testId=0
 
@@ -41,9 +42,12 @@ class LoginFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val rootView: View = inflater.inflate(R.layout.user_input_data_fragment, container,  false)
+        val rootView: View = inflater.inflate(R.layout.input_dialog_fragment, container,  false)
 
         inputNameText = rootView.findViewById<View>(R.id.textInputLayout) as EditText
+        textView = rootView.findViewById<View>(R.id.fragmentText) as TextView
+
+        textView.text=getString(R.string.input_password)
 
         inputNameText.filters = arrayOf(filter)
 
@@ -52,7 +56,8 @@ class LoginFragment : DialogFragment() {
         testName= bundle?.getString(KEY_TEST_NAME)
 
         sendBtn  = rootView.findViewById<View>(R.id.sendBtn) as Button
-        sendBtn.setOnClickListener { sendData(inputNameText.text.toString()) }
+        sendBtn.setOnClickListener { sendData() }
+        sendBtn.text=getString(R.string.enter)
 
         return rootView
     }
@@ -60,7 +65,8 @@ class LoginFragment : DialogFragment() {
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
-        sendData("")
+        sendBtn.setOnClickListener(null)
+        dismiss()
     }
 
 
@@ -72,11 +78,11 @@ class LoginFragment : DialogFragment() {
             } else null
         }
 
-    private fun sendData(text:String) {
+    private fun sendData() {
         //INTENT OBJ
 
         val intent = Intent(requireActivity().baseContext, ResultsActivity::class.java)
-        intent.putExtra(KEY_SENDER, KeysContainer.KEY_NAME_MAIN_ACTIVITY)
+        intent.putExtra(KEY_SENDER, KEY_FRAGMENT_LOGIN)
         intent.putExtra(KEY_USER_NAME, userName)
         intent.putExtra(KEY_TEST_NAME, testName)
         //PACK DATA
@@ -91,10 +97,13 @@ class LoginFragment : DialogFragment() {
                 inputNameText.setText("")
                 dismiss()
             } else {
-                inputNameText.setText("не верно")
+                inputNameText.setText("")
+                textView.text=getString(R.string.input_password)
+                Toast.makeText(context,
+                    getString(R.string.wrong_password),
+                Toast.LENGTH_LONG
+                ).show()
             }
         }
-
-
     }
 }

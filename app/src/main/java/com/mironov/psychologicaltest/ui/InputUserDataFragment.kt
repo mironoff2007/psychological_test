@@ -33,7 +33,7 @@ class InputUserDataFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val rootView: View = inflater.inflate(R.layout.user_input_data_fragment, container,  false)
+        val rootView: View = inflater.inflate(R.layout.input_dialog_fragment, container,  false)
 
         inputNameText = rootView.findViewById<View>(R.id.textInputLayout) as EditText
 
@@ -51,7 +51,8 @@ class InputUserDataFragment : DialogFragment() {
 
     override fun onCancel(dialog: DialogInterface) {
         super.onCancel(dialog)
-        sendData("")
+        sendBtn.setOnClickListener(null)
+        dismiss()
     }
 
 

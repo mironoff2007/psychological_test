@@ -29,6 +29,11 @@
     <string name="print_answer">Ответ - </string>
     <string name="choose_test">Выберите тест</string>
     <string name="button_present_results">Результаты</string>
+    <string name="results">Результаты</string>
+    <string name="enter">ввод</string>
+    <string name="input_password">Введите пароль</string>
+    <string name="wrong_password">Неверный пароль</string>
+    <string name="add_mew_user">Новый пользватель</string>
 
 
 </resources>
