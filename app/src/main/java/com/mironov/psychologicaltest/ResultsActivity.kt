@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
@@ -54,17 +55,13 @@ class ResultsActivity : AppCompatActivity() {
 
 
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
-        if (sender.equals(KEY_NAME_MAIN_ACTIVITY)) {
+        if (sender.equals(KEY_FRAGMENT_LOGIN)) {
             userName = intent.getStringExtra(KEY_USER_NAME)
             testName = intent.getStringExtra(KEY_TEST_NAME)
         }
 
-
-
         viewModel = ViewModelProvider(this).get(ResultsViewModel::class.java)
         setupObserver()
-
-
 
         createButton = findViewById(R.id.createButton)
         resultText = findViewById(R.id.result_text)
@@ -161,13 +158,18 @@ class ResultsActivity : AppCompatActivity() {
             when (it) {
                 ResultsStatus.TEST_NAMES_LOADED -> {
                     testsList = viewModel.testsList
+
+                    testNameSpinner?.adapter=null
                     testNameSpinner=null
                     initSpinnerTables()
                 }
                 ResultsStatus.USERS_LOADED -> {
                     usersList = viewModel.usersList
+
+                    userNameSpinner?.adapter=null
                     userNameSpinner=null
                     initSpinnerUsers()
+
                     userNameSpinner!!.setSelection(usersList.indexOf(userName))
 
                 }

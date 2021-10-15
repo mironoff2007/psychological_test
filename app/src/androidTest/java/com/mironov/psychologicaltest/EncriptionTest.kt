@@ -13,6 +13,7 @@ import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.NoSuchAlgorithmException
 import java.security.spec.KeySpec
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.SecretKey
 import javax.crypto.SecretKeyFactory
@@ -88,12 +89,34 @@ public class EncriptionTest {
         } catch (e: NoSuchAlgorithmException) {
             Log.d("My_tag", e.toString())
         }
-        val passphraseOrPin = "some_text".toCharArray()
-        val salt = "salt2".encodeToByteArray()
+        val passphraseOrPin = "ширякула".toCharArray()
+        val salt = "намылить".encodeToByteArray()
         val keySpec: KeySpec = PBEKeySpec(passphraseOrPin, salt, iterations, outputKeyLength)
 
         Log.d("My_tag", "key="+keyFactory?.generateSecret(keySpec)?.encoded)
 
+        var keyFactory2: SecretKeyFactory?
+        keyFactory2=null
 
+        try {
+            keyFactory2 = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        } catch (e: NoSuchAlgorithmException) {
+            Log.d("My_tag", e.toString())
+        }
+        val passphraseOrPin2 = "ширякула".toCharArray()
+        val salt2 = "намылить".encodeToByteArray()
+        val keySpec2: KeySpec = PBEKeySpec(passphraseOrPin2, salt2, iterations, outputKeyLength)
+
+        val h1=keyFactory?.generateSecret(keySpec)
+        val h2=keyFactory2?.generateSecret(keySpec2)
+
+        val enc1=h1?.encoded
+        val enc2=byteArrayOf(91, -6, 29, -96, 43, -94, -10, 106, 122, 63, -35, 36, 24, -120, 34, 69, -48, 53, -69, 30, 84, -51, -47, -94, 105, -32, 106, 21, 38, 105, 107, -116)
+
+
+        val enc1Hash=h1?.encoded.hashCode()
+        val enc2Hash=h2?.encoded.hashCode()
+
+        assertEquals(enc1?.contentEquals(enc2),true )
     }
 }

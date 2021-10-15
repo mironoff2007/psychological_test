@@ -14,6 +14,7 @@ import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.widget.Toast
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
@@ -22,13 +23,15 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
+import com.mironov.psychologicaltest.security.LoginProvider
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
-
+import com.mironov.psychologicaltest.ui.LoginFragment
 
 
 class MainActivity : AppCompatActivity() {
 
     var inputUserDataFragment: InputUserDataFragment? = null
+    var loginFragment: LoginFragment? = null
 
     lateinit var viewModel: MainViewModel
 
@@ -52,6 +55,8 @@ class MainActivity : AppCompatActivity() {
     private var testName = ""
 
     private var userName: String? = null
+
+    private var selectedTableId=0
 
 
     // Storage Permissions
@@ -147,6 +152,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun initViews() {
         inputUserDataFragment = InputUserDataFragment()
+        loginFragment = LoginFragment()
 
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
@@ -168,7 +174,8 @@ class MainActivity : AppCompatActivity() {
         progressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.INVISIBLE
 
-        inputUserDataFragment = InputUserDataFragment()
+
+
     }
 
 
@@ -191,11 +198,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         presentButton.setOnClickListener { v: View? ->
-            val intent = Intent(this, ResultsActivity::class.java)
-            intent.putExtra(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
-            intent.putExtra(KEY_USER_NAME, userName)
-            intent.putExtra(KEY_TEST_NAME, tableName)
-            this.startActivity(intent)
+
+            var bundle =Bundle()
+            //bundle.putInt(KEY_TEST_ID,selectedTableId)
+            bundle.putString(KEY_USER_NAME,userName)
+            bundle.putString(KEY_TEST_NAME,testName)
+            loginFragment!!.arguments=bundle
+            loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
+            loginFragment=null
+
         }
 
     }
@@ -223,6 +234,8 @@ class MainActivity : AppCompatActivity() {
                 l: Long
             ) {
                 tableName = testDbNames[i]
+
+                selectedTableId=i
 
                 prevButton.visibility = View.GONE
                 resetButton.visibility = View.GONE

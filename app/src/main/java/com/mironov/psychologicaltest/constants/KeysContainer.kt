@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest.constants
 
 object KeysContainer {
     const val KEY_FRAGMENT_USER_DATA="KEY_FRAGMENT_USER_DATA"
+    const val KEY_FRAGMENT_LOGIN="KEY_FRAGMENT_LOGIN"
     const val KEY_NAME_FRAGMENT="KEY_NAME_FRAGMENT"
     const val KEY_NAME_MAIN_ACTIVITY="KEY_NAME_MAIN_ACTIVITY"
     const val KEY_SENDER="KEY_SENDER"
