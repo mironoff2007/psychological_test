@@ -12,9 +12,12 @@ import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
+import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
@@ -68,6 +71,19 @@ class ResultsActivity : AppCompatActivity() {
         viewModel.readUsers()
 
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+    }
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState?.run {
+            putString(KeysContainer.KEY_TEST_NAME, selectedTest)
+            putString(KeysContainer.KEY_USER_NAME, selectedUser)
+        }
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        userName= savedInstanceState?.getString(KEY_USER_NAME)
+        testName= savedInstanceState?.getString(KEY_TEST_NAME)
+        viewModel.readUsers()
     }
 
     private fun initViews() {

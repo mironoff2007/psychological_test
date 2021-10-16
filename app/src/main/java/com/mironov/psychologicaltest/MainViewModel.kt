@@ -124,7 +124,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getNextQuestion()
     }
 
-    fun reset() {
+    private fun reset() {
         answersQue.clear()
         calculation.resetCalc()
         questionId = 0
@@ -153,7 +153,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun getNextQuestion() {
+    private fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
         if (questionMaxId == 0)
             mutableMaxCount.observeForever(object : Observer<Int?> {

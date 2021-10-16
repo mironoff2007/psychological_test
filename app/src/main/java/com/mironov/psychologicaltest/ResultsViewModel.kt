@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest
 
 import android.app.Application
 import android.os.Build
+import android.os.Bundle
 import android.text.Layout
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -56,6 +57,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         sharedPrefs=DataShared(application.applicationContext)
 
     }
+
 
     fun readUsers() {
         resultsModelStatus.postValue(ResultsStatus.LOADING)

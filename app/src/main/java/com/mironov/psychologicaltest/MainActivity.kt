@@ -6,15 +6,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
@@ -25,8 +24,6 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
 import com.mironov.psychologicaltest.ui.LoginFragment
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -53,9 +50,10 @@ class MainActivity : AppCompatActivity() {
     private var testName = ""
 
     private var userName: String? = null
+    private var selectedTest: String? = null
 
-    private var selectedTableId=0
-    private var questionsCount=0
+    private var selectedTableId = 0
+    private var questionsCount = 0
 
 
     // Storage Permissions
@@ -75,16 +73,16 @@ class MainActivity : AppCompatActivity() {
         return when (item.getItemId()) {
             R.id.action_settings -> {
                 loginFragment = LoginFragment()
-                var bundle =Bundle()
-                bundle.putString(KEY_USER_NAME,userName)
-                bundle.putString(KEY_TEST_NAME,testName)
-                loginFragment!!.arguments=bundle
+                var bundle = Bundle()
+                bundle.putString(KEY_USER_NAME, userName)
+                bundle.putString(KEY_TEST_NAME, testName)
+                loginFragment!!.arguments = bundle
                 loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
-                loginFragment=null
+                loginFragment = null
                 true
             }
             R.id.new_user -> {
-                userName=null
+                userName = null
                 requesNewUserName()
                 true
             }
@@ -100,8 +98,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        viewModel.setAnswers(getString(R.string.answer_no),getString(R.string.answer_yes))
-        viewModel.answerToPrintText=getString(R.string.print_answer)
+        viewModel.setAnswers(getString(R.string.answer_no), getString(R.string.answer_yes))
+        viewModel.answerToPrintText = getString(R.string.print_answer)
 
         setupObserver()
         initViews()
@@ -127,9 +125,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        inputUserDataFragment=null
-        loginFragment=null
-        tableNameSpinner.onItemSelectedListener=null
+        inputUserDataFragment = null
+        loginFragment = null
+        tableNameSpinner.onItemSelectedListener = null
     }
 
     override fun onContentChanged() {
@@ -148,15 +146,16 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState?.run {
-            val i =tableNameSpinner.selectedItemId.toInt()
-            putInt("TABLENAME", i)
-            tableNameSpinner.setSelection(i)
+            val i = tableNameSpinner.selectedItemId.toInt()
+            putInt(KEY_TEST_ID, i)
+            putString(KEY_TEST_NAME, testName)
         }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        val i = savedInstanceState?.getInt("TABLENAME")
+        val i = savedInstanceState?.getInt(KEY_TEST_ID)
         tableNameSpinner.setSelection(i)
+        testName = savedInstanceState?.getString(KEY_TEST_NAME).toString()
     }
 
     private fun receiveData() {
@@ -165,18 +164,17 @@ class MainActivity : AppCompatActivity() {
         //DETERMINE WHO STARTED THIS ACTIVITY
         val sender = this.intent.extras?.getString(KEY_SENDER)
 
-        var testId=0
+        var testId = 0
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
-            testId = intent.getIntExtra(KEY_TEST_ID,0)
+            testId = intent.getIntExtra(KEY_TEST_ID, 0)
             userName = name
-            viewModel.userName=name
+            viewModel.userName = name
         }
-        if(userName==null ||userName?.length==0) {
+        if (userName == null || userName?.length == 0) {
             tableNameSpinner.setSelection(0)
-        }
-        else{
+        } else {
             tableNameSpinner.setSelection(testId)
         }
     }
@@ -227,8 +225,9 @@ class MainActivity : AppCompatActivity() {
         val testsNames = resources.getStringArray(R.array.testsNames)
 
 
-        val testNamesList= listOf(*resources.getStringArray(R.array.testsNames))
-        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, testNamesList)
+        val testNamesList = listOf(*resources.getStringArray(R.array.testsNames))
+        val adapter: ArrayAdapter<*> =
+            ArrayAdapter<String>(this, R.layout.spinner_item, testNamesList)
         adapter.setDropDownViewResource(R.layout.spinner_item)
 
         tableNameSpinner.adapter = adapter
@@ -242,20 +241,21 @@ class MainActivity : AppCompatActivity() {
             ) {
                 tableName = testDbNames[i]
 
-                selectedTableId=i
+                selectedTableId = i
 
                 prevButton.visibility = View.GONE
 
-                testName = testsNames[i]
-                selectedTableId=i
+                selectedTableId = i
 
-                if (i>0) {
-                    if (userName == null||userName?.length==0) {
-                       requesNewUserName()
+                if (i > 0) {
+                    if (userName == null || userName?.length == 0) {
+                        requesNewUserName()
                     }
-                    viewModel.changeTableName(tableName)
+                    if (testName != testsNames[i]) {
+                        testName = testsNames[i]
+                        viewModel.changeTableName(tableName)
+                    }
                 }
-
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
@@ -269,11 +269,11 @@ class MainActivity : AppCompatActivity() {
 
     private fun requesNewUserName() {
         inputUserDataFragment = InputUserDataFragment()
-        val bundle =Bundle()
-        bundle.putInt(KEY_TEST_ID,selectedTableId)
-        inputUserDataFragment!!.arguments=bundle
+        val bundle = Bundle()
+        bundle.putInt(KEY_TEST_ID, selectedTableId)
+        inputUserDataFragment!!.arguments = bundle
         inputUserDataFragment!!.show(supportFragmentManager, KEY_FRAGMENT_USER_DATA)
-        inputUserDataFragment=null
+        inputUserDataFragment = null
     }
 
     @SuppressLint("SetTextI18n")
@@ -283,8 +283,9 @@ class MainActivity : AppCompatActivity() {
                 Status.FIRST -> {
                     prevButton.isEnabled = false
                     val q = viewModel.currentQuestion
-                    questionsCount=viewModel.questionMaxId
-                    questionText.text = q?.id.toString() + "/" +questionsCount+". " + q?.questionText + "?"
+                    questionsCount = viewModel.questionMaxId
+                    questionText.text =
+                        q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
                     noButton.visibility = View.VISIBLE
@@ -296,8 +297,9 @@ class MainActivity : AppCompatActivity() {
                 }
                 Status.RESPONSE -> {
                     val q = viewModel.currentQuestion
-                    questionsCount=viewModel.questionMaxId
-                    questionText.text = q?.id.toString() + "/" +questionsCount+". " + q?.questionText + "?"
+                    questionsCount = viewModel.questionMaxId
+                    questionText.text =
+                        q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
                     prevButton.isEnabled = true
