@@ -12,22 +12,21 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
-import android.content.Intent
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
-import com.mironov.psychologicaltest.security.LoginProvider
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
 import com.mironov.psychologicaltest.ui.LoginFragment
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
@@ -40,7 +39,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var yesButton: Button
     lateinit var noButton: Button
     lateinit var prevButton: Button
-    lateinit var resetButton: Button
 
     private lateinit var progressBar: ProgressBar
 
@@ -57,6 +55,7 @@ class MainActivity : AppCompatActivity() {
     private var userName: String? = null
 
     private var selectedTableId=0
+    private var questionsCount=0
 
 
     // Storage Permissions
@@ -111,7 +110,6 @@ class MainActivity : AppCompatActivity() {
         requestPermissions()
 
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
-
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
@@ -131,7 +129,9 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         inputUserDataFragment=null
         loginFragment=null
+        tableNameSpinner.onItemSelectedListener=null
     }
+
     override fun onContentChanged() {
         super.onContentChanged()
     }
@@ -186,12 +186,11 @@ class MainActivity : AppCompatActivity() {
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
         prevButton = findViewById(R.id.prevButton)
-        resetButton = findViewById(R.id.resetButton)
+
 
         questionText = findViewById(R.id.questionText)
         tableNameSpinner = findViewById(R.id.tableNameSpinner)
 
-        resetButton.visibility = View.GONE
         prevButton.visibility = View.GONE
 
         noButton.isEnabled = false
@@ -213,11 +212,6 @@ class MainActivity : AppCompatActivity() {
         noButton.setOnClickListener { v: View? ->
             viewModel.answerNo()
         }
-        resetButton.setOnClickListener { v: View? ->
-            resetButton.visibility = View.GONE
-            resetButton.visibility=View.GONE
-            viewModel.reset()
-        }
         prevButton.setOnClickListener { v: View? ->
             viewModel.prevQuestion()
         }
@@ -225,17 +219,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Spinners
+
+
     private fun initSpinnerAdapters() {
 
         val testDbNames = resources.getStringArray(R.array.tests)
         val testsNames = resources.getStringArray(R.array.testsNames)
 
-        val adapter: ArrayAdapter<*> = ArrayAdapter.createFromResource(
-            this,
-            R.array.testsNames,
-            android.R.layout.simple_spinner_item
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        val testNamesList= listOf(*resources.getStringArray(R.array.testsNames))
+        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, testNamesList)
+        adapter.setDropDownViewResource(R.layout.spinner_item)
 
         tableNameSpinner.adapter = adapter
 
@@ -251,8 +245,6 @@ class MainActivity : AppCompatActivity() {
                 selectedTableId=i
 
                 prevButton.visibility = View.GONE
-                resetButton.visibility = View.GONE
-
 
                 testName = testsNames[i]
                 selectedTableId=i
@@ -263,6 +255,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     viewModel.changeTableName(tableName)
                 }
+
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {
@@ -290,7 +283,8 @@ class MainActivity : AppCompatActivity() {
                 Status.FIRST -> {
                     prevButton.isEnabled = false
                     val q = viewModel.currentQuestion
-                    questionText.text = q?.id.toString() + ". " + q?.questionText + "?"
+                    questionsCount=viewModel.questionMaxId
+                    questionText.text = q?.id.toString() + "/" +questionsCount+". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
                     noButton.visibility = View.VISIBLE
@@ -302,7 +296,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 Status.RESPONSE -> {
                     val q = viewModel.currentQuestion
-                    questionText.text = q?.id.toString() + ". " + q?.questionText + "?"
+                    questionsCount=viewModel.questionMaxId
+                    questionText.text = q?.id.toString() + "/" +questionsCount+". " + q?.questionText + "?"
                     noButton.isEnabled = true
                     yesButton.isEnabled = true
                     prevButton.isEnabled = true
@@ -327,7 +322,6 @@ class MainActivity : AppCompatActivity() {
                     noButton.visibility = View.GONE
                     yesButton.visibility = View.GONE
                     prevButton.visibility = View.GONE
-                    resetButton.visibility = View.VISIBLE
 
                     viewModel.addResultsToDb()
                 }

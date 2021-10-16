@@ -1,6 +1,5 @@
 package com.mironov.psychologicaltest.security
 
-import android.util.Log
 import java.security.NoSuchAlgorithmException
 import java.security.spec.KeySpec
 import javax.crypto.SecretKeyFactory
@@ -8,7 +7,7 @@ import javax.crypto.spec.PBEKeySpec
 
 class LoginProvider {
 
-     val key= byteArrayOf(91, -6, 29, -96, 43, -94, -10, 106, 122, 63, -35, 36, 24, -120, 34, 69, -48, 53, -69, 30, 84, -51, -47, -94, 105, -32, 106, 21, 38, 105, 107, -116)
+     val key= byteArrayOf(-95, 117, -112, -11, 17, 78, -124, -55, -9, -37, -31, 49, -13, 109, -6, -50, 93, 7, 38, -75, 67, -55, -92, 54, -111, 3, 31, 10, -28, -22, 92, 87)
      val salt = "намылить".encodeToByteArray()
 
      fun checkPassword( password:String):Boolean {

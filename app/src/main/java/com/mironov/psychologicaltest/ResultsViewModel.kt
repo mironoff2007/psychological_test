@@ -57,36 +57,30 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     }
 
-    fun readAnswersByTest(userName: String, testName: String) {
-        repository.readAnswersByTest(testName, userName).observeForever(object :
-            Observer<List<Answer?>> {
-            override fun onChanged(t: List<Answer?>) {
-
-                t.forEach() { v -> Log.d("My_tag", v.toString()) }
-            }
-        })
-    }
-
-
     fun readUsers() {
+        resultsModelStatus.postValue(ResultsStatus.LOADING)
         usersRequest=repository.readUsers()
         usersRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
                 usersList = list as ArrayList<String?>
-                list.forEach() { v -> Log.d("My_tag", v.toString()) }
+
                 usersRequest.removeObserver(this)
+
                 resultsModelStatus.postValue(ResultsStatus.USERS_LOADED)
             }
         })
     }
 
     fun readFinishedTest(userName: String) {
+        resultsModelStatus.postValue(ResultsStatus.LOADING)
         finishedTestRequest=repository.readFinishedTest(userName)
         finishedTestRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
-                list.forEach() { v -> Log.d("My_tag", v.toString()) }
+
                 testsList = list as ArrayList<String?>
+
                 finishedTestRequest.removeObserver(this)
+
                 resultsModelStatus.postValue(ResultsStatus.TEST_NAMES_LOADED)
             }
         })

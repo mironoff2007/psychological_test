@@ -24,8 +24,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var i = 1
     var questionId = 0
     var questionMaxId = 0
-    lateinit var mutableMaxCount: LiveData<Int?>
-    lateinit var questionRequest: LiveData<Question?>
+    private lateinit var mutableMaxCount: LiveData<Int?>
+    private lateinit var questionRequest: LiveData<Question?>
 
     var answersQue: ArrayDeque<String> = ArrayDeque<String>()
 

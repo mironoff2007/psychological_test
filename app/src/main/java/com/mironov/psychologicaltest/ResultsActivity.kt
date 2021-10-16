@@ -3,7 +3,7 @@ package com.mironov.psychologicaltest
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.*
 import androidx.annotation.RequiresApi
@@ -15,8 +15,6 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
-
-import kotlinx.android.synthetic.main.input_dialog_fragment.*
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
@@ -31,8 +29,9 @@ class ResultsActivity : AppCompatActivity() {
     lateinit var testsList: ArrayList<String?>
     lateinit var userTestNames: ArrayList<String?>
 
-    private  var testNameSpinner: Spinner?=null
-    private  var userNameSpinner: Spinner?=null
+    private var testNameSpinner: Spinner? = null
+    private var userNameSpinner: Spinner? = null
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var resultText: TextView
 
@@ -61,16 +60,29 @@ class ResultsActivity : AppCompatActivity() {
         }
 
         viewModel = ViewModelProvider(this).get(ResultsViewModel::class.java)
+
         setupObserver()
-
-        createButton = findViewById(R.id.createButton)
-        resultText = findViewById(R.id.result_text)
-
-        //viewModel.readAnswersByTest(userName.toString(), testName.toString())
-        viewModel.readUsers()
+        initViews()
         setupButtonsListeners()
 
+        viewModel.readUsers()
+
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+    }
+
+    private fun initViews() {
+        createButton = findViewById(R.id.createButton)
+        resultText = findViewById(R.id.result_text)
+        progressBar = findViewById(R.id.progressBarResults)
+        userNameSpinner = findViewById(R.id.spinner_users)
+        testNameSpinner = findViewById(R.id.spinner_tests)
+
+        createButton.isEnabled = false
+        progressBar.isEnabled = false
+        userNameSpinner?.isEnabled = false
+        testNameSpinner?.isEnabled = false
+
+        resultText.movementMethod=ScrollingMovementMethod()
     }
 
     //Spinners
@@ -87,19 +99,15 @@ class ResultsActivity : AppCompatActivity() {
             userTestNames.add(map[v])
         }
         testDbNames = emptyArray()
-        testsNames= emptyArray()
-        map= emptyMap()
+        testsNames = emptyArray()
+        map = emptyMap()
 
 
-        val adapter: ArrayAdapter<*> = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item, userTestNames
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, userTestNames)
 
+        adapter.setDropDownViewResource(R.layout.spinner_item)
 
-        testNameSpinner = findViewById(R.id.spinner_tests)
-
+        testNameSpinner!!.isEnabled = userTestNames.isNotEmpty()
         testNameSpinner!!.adapter = adapter
 
         testNameSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -111,11 +119,14 @@ class ResultsActivity : AppCompatActivity() {
             ) {
                 selectedTest = testsList[i]
 
-                resultText.text = viewModel.getResultToPrefs(selectedUser!!, selectedTest!!)
-
-                filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
+                if (selectedUser != null && selectedTest != null) {
+                    resultText.text = viewModel.getResultToPrefs(selectedUser!!, selectedTest!!)
+                    filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
+                    createButton.isEnabled = true
+                } else {
+                    createButton.isEnabled = false
+                }
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 TODO("Not yet implemented")
             }
@@ -128,15 +139,10 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun initSpinnerUsers() {
 
-        val adapter: ArrayAdapter<*> = ArrayAdapter(
-            this,
-            android.R.layout.simple_spinner_item,
-            usersList
-        )
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, usersList)
+        adapter.setDropDownViewResource(R.layout.spinner_item)
 
-        userNameSpinner = findViewById(R.id.spinner_users)
-
+        userNameSpinner!!.isEnabled = usersList.isNotEmpty()
         userNameSpinner!!.adapter = adapter
 
         userNameSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
@@ -147,10 +153,10 @@ class ResultsActivity : AppCompatActivity() {
                 l: Long
             ) {
                 selectedUser = usersList[i]
-                viewModel.readFinishedTest(selectedUser.toString())
-
+                if (selectedUser != null) {
+                    viewModel.readFinishedTest(selectedUser.toString())
+                }
             }
-
             override fun onNothingSelected(p0: AdapterView<*>?) {
                 TODO("Not yet implemented")
             }
@@ -163,42 +169,51 @@ class ResultsActivity : AppCompatActivity() {
                 ResultsStatus.TEST_NAMES_LOADED -> {
                     testsList = viewModel.testsList
 
-                    testNameSpinner?.adapter=null
-                    testNameSpinner=null
+                    testNameSpinner?.adapter = null
+                    testNameSpinner?.onItemSelectedListener = null
                     initSpinnerTables()
+
+                    progressBar.isEnabled = false
+                    progressBar.visibility = View.GONE
                 }
                 ResultsStatus.USERS_LOADED -> {
                     usersList = viewModel.usersList
 
-                    userNameSpinner?.adapter=null
-                    userNameSpinner=null
+                    userNameSpinner?.adapter = null
+                    userNameSpinner?.onItemSelectedListener = null
                     initSpinnerUsers()
 
                     userNameSpinner!!.setSelection(usersList.indexOf(userName))
 
+                    progressBar.isEnabled = false
+                    progressBar.visibility = View.GONE
                 }
                 ResultsStatus.PRINTED -> {
-                   // progressBar.visibility = View.GONE
                     Toast.makeText(
                         applicationContext,
-                        "PRINTED to - " + filePath,
+                        "сохранено - $filePath",
                         Toast.LENGTH_LONG
                     ).show()
-                    Log.d("My_tag", "PRINTED to - " + filePath)
+
+                    progressBar.isEnabled = false
+                    progressBar.visibility = View.GONE
+
                     viewPdfFile(filePath)
+                }
+                ResultsStatus.LOADING -> {
+                    progressBar.isEnabled = true
+                    progressBar.visibility = View.VISIBLE
                 }
             }
         }
     }
-    private fun setupButtonsListeners() {
 
+    private fun setupButtonsListeners() {
 
         createButton.setOnClickListener { v: View? ->
             filePath = rootPath + userName + "-" + testName + ".pdf"
-            viewModel.printResults(filePath,selectedTest.toString(),selectedUser.toString())
+            viewModel.printResults(filePath, selectedTest.toString(), selectedUser.toString())
         }
-
-
     }
 
     private fun viewPdfFile(path: String?) {

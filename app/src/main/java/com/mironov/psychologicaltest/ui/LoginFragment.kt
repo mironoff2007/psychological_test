@@ -15,7 +15,6 @@ import android.widget.TextView
 import android.widget.Toast
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.ResultsActivity
-import com.mironov.psychologicaltest.constants.KeysContainer
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME

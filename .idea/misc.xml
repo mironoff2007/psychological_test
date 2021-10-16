@@ -5,9 +5,11 @@
       <map>
         <entry key="..\:/Users/Jury/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/activity_main.xml" value="0.184375" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/activity_main.xml" value="0.25" />
-        <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/activity_results_presenter.xml" value="0.3359375" />
+        <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/activity_results_presenter.xml" value="0.25" />
+        <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/custom_spinner_dropdown_item.xml" value="0.2644927536231884" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/input_dialog_fragment.xml" value="0.28396739130434784" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/maon_menu.xml" value="0.28396739130434784" />
+        <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/spinner_item.xml" value="0.2644927536231884" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/user_input_data_fragment.xml" value="0.22" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/layout/userinputdata_fragment.xml" value="0.2857789855072464" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/menu/main_menu.xml" value="0.3359375" />
@@ -15,6 +17,7 @@
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.11666666666666667" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/mipmap-xxhdpi/ic_launcher_round.xml" value="0.11666666666666667" />
         <entry key="..\:/Users/msi_b150i/AndroidStudioProjects/psychologicaltest/app/src/main/res/xml/provider_paths.xml" value="0.19270833333333334" />
+        <entry key="..\:/Users/msi_b150i/AppData/Local/Android/Sdk/platforms/android-31/data/res/layout/simple_spinner_dropdown_item.xml" value="0.3359375" />
       </map>
     </option>
   </component>

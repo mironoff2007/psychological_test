@@ -89,7 +89,7 @@ public class EncriptionTest {
         } catch (e: NoSuchAlgorithmException) {
             Log.d("My_tag", e.toString())
         }
-        val passphraseOrPin = "ширякула".toCharArray()
+        val passphraseOrPin = "".toCharArray()
         val salt = "намылить".encodeToByteArray()
         val keySpec: KeySpec = PBEKeySpec(passphraseOrPin, salt, iterations, outputKeyLength)
 
@@ -103,7 +103,7 @@ public class EncriptionTest {
         } catch (e: NoSuchAlgorithmException) {
             Log.d("My_tag", e.toString())
         }
-        val passphraseOrPin2 = "ширякула".toCharArray()
+        val passphraseOrPin2 = "".toCharArray()
         val salt2 = "намылить".encodeToByteArray()
         val keySpec2: KeySpec = PBEKeySpec(passphraseOrPin2, salt2, iterations, outputKeyLength)
 
@@ -111,7 +111,7 @@ public class EncriptionTest {
         val h2=keyFactory2?.generateSecret(keySpec2)
 
         val enc1=h1?.encoded
-        val enc2=byteArrayOf(91, -6, 29, -96, 43, -94, -10, 106, 122, 63, -35, 36, 24, -120, 34, 69, -48, 53, -69, 30, 84, -51, -47, -94, 105, -32, 106, 21, 38, 105, 107, -116)
+        val enc2=byteArrayOf(107, -116)
 
 
         val enc1Hash=h1?.encoded.hashCode()
