@@ -37,10 +37,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var noButton: Button
     lateinit var prevButton: Button
 
+    lateinit var radioButtonList: ArrayList<RadioButton>
+    lateinit var radioButton1: RadioButton
+    lateinit var radioButton2: RadioButton
+    lateinit var radioButton3: RadioButton
+    lateinit var radioButton4: RadioButton
+    lateinit var subQuestionList: ArrayList<String>
+
     private lateinit var progressBar: ProgressBar
-
     private lateinit var tableNameSpinner: Spinner
-
     private lateinit var questionText: TextView
 
     lateinit var tableName: String
@@ -180,24 +185,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initViews() {
-
+        //Buttons
         yesButton = findViewById(R.id.yesButton)
         noButton = findViewById(R.id.noButton)
         prevButton = findViewById(R.id.prevButton)
-
-
-        questionText = findViewById(R.id.questionText)
-        tableNameSpinner = findViewById(R.id.tableNameSpinner)
-
-        prevButton.visibility = View.GONE
-
         noButton.isEnabled = false
         yesButton.isEnabled = false
         prevButton.isEnabled = false
 
+        //TextView
+        questionText = findViewById(R.id.questionText)
+        //Spinner
+        tableNameSpinner = findViewById(R.id.tableNameSpinner)
+
+        //ProgressBar
         progressBar = findViewById(R.id.progressBar)
         progressBar.visibility = View.INVISIBLE
 
+        //RadioButtons
+        radioButton1 = findViewById(R.id.radio_1)
+        radioButton2 = findViewById(R.id.radio_2)
+        radioButton3 = findViewById(R.id.radio_3)
+        radioButton4 = findViewById(R.id.radio_4)
+        radioButtonList = arrayListOf(radioButton1, radioButton2, radioButton3, radioButton4)
     }
 
 
@@ -281,33 +291,12 @@ class MainActivity : AppCompatActivity() {
         viewModel.viewModelStatus.observe(this) {
             when (it) {
                 Status.FIRST -> {
+                    postNewQuestion()
                     prevButton.isEnabled = false
-                    val q = viewModel.currentQuestion
-                    questionsCount = viewModel.questionMaxId
-                    questionText.text =
-                        q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
-                    noButton.isEnabled = true
-                    yesButton.isEnabled = true
-                    noButton.visibility = View.VISIBLE
-                    yesButton.visibility = View.VISIBLE
-                    progressBar.visibility = View.INVISIBLE
-
-                    Log.d("My_tag", "-------")
-                    Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.RESPONSE -> {
-                    val q = viewModel.currentQuestion
-                    questionsCount = viewModel.questionMaxId
-                    questionText.text =
-                        q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
-                    noButton.isEnabled = true
-                    yesButton.isEnabled = true
+                    postNewQuestion()
                     prevButton.isEnabled = true
-                    noButton.visibility = View.VISIBLE
-                    yesButton.visibility = View.VISIBLE
-                    prevButton.visibility = View.VISIBLE
-                    progressBar.visibility = View.INVISIBLE
-                    Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.LOADING -> {
                     noButton.isEnabled = false
@@ -342,6 +331,29 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun postNewQuestion() {
+        val q = viewModel.currentQuestion
+        subQuestionList = q?.subQuestionText?.split(",") as ArrayList<String>
+        questionsCount = viewModel.questionMaxId
+        questionText.text =
+            q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
+
+        //UI update
+
+        radioButtonList.forEach { v -> v.isEnabled = false
+        v.visibility=View.GONE}
+        subQuestionList.forEach { v ->
+            radioButtonList[subQuestionList.lastIndexOf(v)].isEnabled = true
+            radioButtonList[subQuestionList.lastIndexOf(v)].visibility=View.VISIBLE
+            radioButtonList[subQuestionList.lastIndexOf(v)].text = v
+        }
+        noButton.isEnabled = true
+        yesButton.isEnabled = true
+        noButton.visibility = View.VISIBLE
+        yesButton.visibility = View.VISIBLE
+        progressBar.visibility = View.INVISIBLE
     }
 
 

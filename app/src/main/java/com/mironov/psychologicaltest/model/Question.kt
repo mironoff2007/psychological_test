@@ -11,6 +11,7 @@ data class Question(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
     val questionText: String?,
+    val subQuestionText: String?,
     val type:String?,
     val answer:String?,
     val inc:Int?
