@@ -6,9 +6,7 @@
         <item>azenk_child</item>
         <item>vargi_stolen_par_rel</item>
         <item>shmishek_leongard_character_and_temperament</item>
-        <item>azenk_child</item>
-        <item>vargi_stolen_par_rel</item>
-        <item>shmishek_leongard_character_and_temperament</item>
+        <item>bass_darka_state_aggression</item>
     </string-array>
 
     <string-array name="testsNames">
@@ -16,6 +14,7 @@
         <item>Опросник Айзенка</item>
         <item>Варги—Столина(ОРО)</item>
         <item>Г. Шмишека, К. Леонгарда - Акцентуации характера и темперамента</item>
+        <item>Состояния агрессии Баса-Дарки</item>
     </string-array>
 
     <string name="answer_yes">да</string>
