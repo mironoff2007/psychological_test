@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
@@ -154,15 +155,21 @@ class MainActivity : AppCompatActivity() {
         super.onSaveInstanceState(outState)
         outState?.run {
             val i = tableNameSpinner.selectedItemId.toInt()
+            putString(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
             putInt(KEY_TEST_ID, i)
             putString(KEY_TEST_NAME, testName)
+            putString(KEY_USER_NAME, userName)
         }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        val i = savedInstanceState?.getInt(KEY_TEST_ID)
-        tableNameSpinner.setSelection(i)
-        testName = savedInstanceState?.getString(KEY_TEST_NAME).toString()
+        val sender = this.intent.extras?.getString(KEY_SENDER)
+        if (sender.equals(KEY_NAME_MAIN_ACTIVITY)) {
+            val i = savedInstanceState?.getInt(KEY_TEST_ID)
+            tableNameSpinner.setSelection(i)
+            testName = savedInstanceState?.getString(KEY_TEST_NAME).toString()
+            userName = savedInstanceState?.getString(KEY_USER_NAME).toString()
+        }
     }
 
     private fun receiveData() {
@@ -178,12 +185,15 @@ class MainActivity : AppCompatActivity() {
             testId = intent.getIntExtra(KEY_TEST_ID, 0)
             userName = name
             viewModel.userName = name
+
+            if (userName == null || userName?.length == 0) {
+                tableNameSpinner.setSelection(0)
+            } else {
+                tableNameSpinner.setSelection(testId)
+            }
+            this.intent.putExtra(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
         }
-        if (userName == null || userName?.length == 0) {
-            tableNameSpinner.setSelection(0)
-        } else {
-            tableNameSpinner.setSelection(testId)
-        }
+
     }
 
     private fun initViews() {
