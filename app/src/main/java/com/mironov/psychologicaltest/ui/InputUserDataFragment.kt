@@ -25,7 +25,7 @@ class InputUserDataFragment : DialogFragment() {
 
     var testId = 0
 
-    private val blockCharacterSet = "~#^|$%&*!.,\\/"
+    private val blockCharacterSet = "\"';:~#^|$%&*!.,\\/"
 
     override fun onCreateView(
         inflater: LayoutInflater,

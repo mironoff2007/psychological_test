@@ -14,5 +14,10 @@
         <!-- Customize your theme here. -->
     </style>
 
+    <style name="spinnerStyle" parent="Widget.AppCompat.ListView.DropDown">
+        <item name="android:divider">#d1d1d1</item>
+        <item name="android:dividerHeight">0.5dp</item>
+    </style>
+
 
 </resources>

@@ -6,6 +6,10 @@
     android:gravity="left"
     android:padding="5dip"
     android:textColor="#000000"
-    android:textSize="20sp" />
+    android:textSize="20sp"
+    style="?android:listSeparatorTextViewStyle"
+    android:textStyle="normal"
+    android:textAllCaps="false"/>
+
 
 
