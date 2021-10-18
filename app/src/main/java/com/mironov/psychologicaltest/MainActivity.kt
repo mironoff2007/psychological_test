@@ -61,7 +61,6 @@ class MainActivity : AppCompatActivity() {
     private var testName = ""
 
     private var userName: String? = null
-    private var selectedTest: String? = null
 
     private var selectedTableId = 0
     private var questionsCount = 0
@@ -83,7 +82,7 @@ class MainActivity : AppCompatActivity() {
         return when (item.itemId) {
             R.id.action_settings -> {
                 loginFragment = LoginFragment()
-                var bundle = Bundle()
+                val bundle = Bundle()
                 bundle.putString(KEY_USER_NAME, userName)
                 bundle.putString(KEY_TEST_NAME, testName)
                 loginFragment!!.arguments = bundle
@@ -177,7 +176,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.run {
+        outState.run {
             val i = tableNameSpinner.selectedItemId.toInt()
             putString(KEY_SENDER, KEY_NAME_MAIN_ACTIVITY)
             putInt(KEY_TEST_ID, i)
@@ -189,10 +188,10 @@ class MainActivity : AppCompatActivity() {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         val sender = this.intent.extras?.getString(KEY_SENDER)
         if (sender.equals(KEY_NAME_MAIN_ACTIVITY)) {
-            val i = savedInstanceState?.getInt(KEY_TEST_ID)
+            val i = savedInstanceState.getInt(KEY_TEST_ID)
             tableNameSpinner.setSelection(i)
-            testName = savedInstanceState?.getString(KEY_TEST_NAME).toString()
-            userName = savedInstanceState?.getString(KEY_USER_NAME).toString()
+            testName = savedInstanceState.getString(KEY_TEST_NAME).toString()
+            userName = savedInstanceState.getString(KEY_USER_NAME).toString()
         }
     }
 
@@ -202,7 +201,7 @@ class MainActivity : AppCompatActivity() {
         //DETERMINE WHO STARTED THIS ACTIVITY
         val sender = this.intent.extras?.getString(KEY_SENDER)
 
-        var testId = 0
+        var testId:Int
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
@@ -262,7 +261,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.prevQuestion()
         }
 
-        radioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
+        radioGroup.setOnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_1 -> {
                     radioButtonId = 0
@@ -281,7 +280,7 @@ class MainActivity : AppCompatActivity() {
                     yesButton.isEnabled = true
                 }
             }
-        })
+        }
 
     }
 
@@ -396,7 +395,7 @@ class MainActivity : AppCompatActivity() {
         subQuestionList = q?.subQuestionText?.split(";") as ArrayList<String>
         questionsCount = viewModel.questionMaxId
         questionText.text =
-            q?.id.toString() + "/" + questionsCount + ". " + q?.questionText + "?"
+            q?.id.toString() + "/" + questionsCount + ". " + q?.questionText
 
         //UI update
         radioButtonList.forEach { v ->
