@@ -323,12 +323,14 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 Status.FIRST -> {
                     postNewQuestion()
+                    radioGroup.isEnabled=true
                     prevButton.isEnabled = false
                     prevButton.visibility = View.GONE
                     radioGroup.visibility = View.VISIBLE
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.RESPONSE -> {
+                    radioGroup.isEnabled=true
                     postNewQuestion()
                     prevButton.isEnabled = true
                     prevButton.visibility = View.VISIBLE
@@ -338,6 +340,7 @@ class MainActivity : AppCompatActivity() {
                     yesButton.isEnabled = false
                     prevButton.isEnabled = false
                     progressBar.visibility = View.VISIBLE
+                    radioGroup.isEnabled=false
                 }
                 Status.DONE -> {
                     questionText.text = "Закончен"
