@@ -122,7 +122,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         if (id <= maxId) {
             questionRequest=repository.getQuestionById(selectedTable, id)
                 questionRequest.observeForever(object : Observer<Question?> {
-                @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
 
                     pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)

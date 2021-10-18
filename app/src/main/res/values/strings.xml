@@ -19,7 +19,7 @@
         <item>Стратегии семейного воспитания</item>
     </string-array>
 
-    <string name="answer_yes">да</string>
+    <string name="add_answer">ответить</string>
     <string name="answer_no">нет</string>
     <string name="button_begin">сначала</string>
     <string name="button_prev">назад</string>

@@ -14,6 +14,7 @@ import android.widget.RadioGroup
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
@@ -46,14 +47,14 @@ class MainActivity : AppCompatActivity() {
     lateinit var radioButton3: RadioButton
     lateinit var radioButton4: RadioButton
     lateinit var subQuestionList: ArrayList<String>
-    var  radioButtonId:Int=0
+    var radioButtonId: Int = 0
 
     private lateinit var progressBar: ProgressBar
     private lateinit var tableNameSpinner: Spinner
     private lateinit var questionText: TextView
 
     lateinit var tableName: String
-    var answer: String=""
+    var answer: String = ""
 
     private var rootPath = ""
     private var filePath = ""
@@ -99,7 +100,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         //Debug.waitForDebugger()
@@ -118,17 +118,41 @@ class MainActivity : AppCompatActivity() {
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+
     private fun requestPermissions() {
-        if (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
-            checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                PERMISSIONS_STORAGE,
-                REQUEST_EXTERNAL_STORAGE
-            )
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
+            //API Higher then N
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    applicationContext,Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+                )
+            }
+        } else {
+            //API Lower then N
+            if (ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    applicationContext,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+                )
+            }
         }
+
     }
 
     override fun onDestroy() {
@@ -224,15 +248,14 @@ class MainActivity : AppCompatActivity() {
             v.visibility = View.GONE
             v.text = ""
         }
-        yesButton.isEnabled=false
+        yesButton.isEnabled = false
     }
 
 
     //Buttons Listeners
-    @RequiresApi(Build.VERSION_CODES.N)
     private fun setupListeners() {
         yesButton.setOnClickListener { v: View? ->
-            viewModel.addAnswer(radioButtonId,subQuestionList[radioButtonId],1)
+            viewModel.addAnswer(radioButtonId, subQuestionList[radioButtonId], 1)
             radioGroup.clearCheck()
         }
         prevButton.setOnClickListener { v: View? ->
@@ -242,20 +265,20 @@ class MainActivity : AppCompatActivity() {
         radioGroup.setOnCheckedChangeListener(RadioGroup.OnCheckedChangeListener { group, checkedId ->
             when (checkedId) {
                 R.id.radio_1 -> {
-                    radioButtonId=0
-                    yesButton.isEnabled=true
+                    radioButtonId = 0
+                    yesButton.isEnabled = true
                 }
                 R.id.radio_2 -> {
-                    radioButtonId=1
-                    yesButton.isEnabled=true
+                    radioButtonId = 1
+                    yesButton.isEnabled = true
                 }
                 R.id.radio_3 -> {
-                    radioButtonId=2
-                    yesButton.isEnabled=true
+                    radioButtonId = 2
+                    yesButton.isEnabled = true
                 }
                 R.id.radio_4 -> {
-                    radioButtonId=3
-                    yesButton.isEnabled=true
+                    radioButtonId = 3
+                    yesButton.isEnabled = true
                 }
             }
         })
@@ -323,14 +346,14 @@ class MainActivity : AppCompatActivity() {
             when (it) {
                 Status.FIRST -> {
                     postNewQuestion()
-                    radioGroup.isEnabled=true
+                    radioGroup.isEnabled = true
                     prevButton.isEnabled = false
                     prevButton.visibility = View.GONE
                     radioGroup.visibility = View.VISIBLE
                     Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.RESPONSE -> {
-                    radioGroup.isEnabled=true
+                    radioGroup.isEnabled = true
                     postNewQuestion()
                     prevButton.isEnabled = true
                     prevButton.visibility = View.VISIBLE
@@ -340,7 +363,7 @@ class MainActivity : AppCompatActivity() {
                     yesButton.isEnabled = false
                     prevButton.isEnabled = false
                     progressBar.visibility = View.VISIBLE
-                    radioGroup.isEnabled=false
+                    radioGroup.isEnabled = false
                 }
                 Status.DONE -> {
                     questionText.text = "Закончен"
@@ -381,7 +404,7 @@ class MainActivity : AppCompatActivity() {
             v.visibility = View.GONE
             v.text = ""
         }
-        yesButton.isEnabled=false
+        yesButton.isEnabled = false
 
         subQuestionList.forEach { v ->
             radioButtonList[subQuestionList.lastIndexOf(v)].isEnabled = true

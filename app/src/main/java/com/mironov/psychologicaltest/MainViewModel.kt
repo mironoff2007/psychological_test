@@ -75,7 +75,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             viewModelStatus.postValue(Status.LOADING)
             questionRequest = repository.getQuestionById(tableName, id)
             questionRequest.observeForever(object : Observer<Question?> {
-                @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
 
@@ -101,14 +100,14 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+
     fun addAnswer(answerId: Int, answer: String, inc: Int){
         answer(answerId, answer, inc)
         answersQue.push(answer)
         getNextQuestion()
     }
 
-    @RequiresApi(Build.VERSION_CODES.N)
+
     fun answer(answerId: Int, answer: String, inc: Int) {
         //Type of test
         if (testIsComplex) {
