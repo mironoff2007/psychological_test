@@ -14,14 +14,13 @@ import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.Repository
-import com.mironov.psychologicaltest.util.PdfCreator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.*
 
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    var i = 1
+
     var questionId = 0
     var questionMaxId = 0
     private lateinit var mutableMaxCount: LiveData<Int?>
@@ -35,24 +34,20 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     var userName: String? = null
 
-    private lateinit var answer: String
-    private lateinit var answerYes: String
-    private lateinit var answerNo: String
     lateinit var answerToPrintText: String
-
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
 
     val calculation: Calculation = Calculation()
 
-    lateinit var sharedPrefs: DataShared
+    private  var sharedPrefs: DataShared
 
     private lateinit var tableName: String
 
     private val repository: Repository
 
-    val pdfCreator = PdfCreator()
-    var path: String = ""
+    private val complexTestsList = arrayListOf("family_parenting_strategies")
+    var testIsComplex: Boolean = false
 
     init {
         val questionDao = QuestionDatabase.getDatabase(
@@ -63,28 +58,22 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         ).answerDao()
         repository = Repository(questionDao, answerDao)
 
-        viewModelScope.launch(Dispatchers.IO) {
-            //repository.resetAnswerTable()//REMOVE -TODO-
-        }
-
-        sharedPrefs=DataShared(application.applicationContext)
+        sharedPrefs = DataShared(application.applicationContext)
     }
 
-    fun setAnswers(answerNo: String, answerYes: String) {
-        this.answerNo = answerNo
-        this.answerYes = answerYes
-    }
 
     fun changeTableName(tableName: String) {
         this.tableName = tableName
         mutableMaxCount = repository.getRowsCount(tableName)
+        //Change test type to complex
+        testIsComplex = complexTestsList.contains(tableName)
         reset()
     }
 
     fun getQuestionById(id: Int) {
         if (id <= questionMaxId) {
             viewModelStatus.postValue(Status.LOADING)
-           questionRequest= repository.getQuestionById(tableName, id)
+            questionRequest = repository.getQuestionById(tableName, id)
             questionRequest.observeForever(object : Observer<Question?> {
                 @RequiresApi(Build.VERSION_CODES.N)
                 override fun onChanged(q: Question?) {
@@ -92,8 +81,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
                     if (returned) {
                         returned = false
-                        calculation.addAnswer(currentQuestion, answersQue.removeFirst(), -1)
-
+                        val answer = answersQue.removeFirst()
+                        answer(
+                            currentQuestion?.subQuestionText?.split(";")!!.indexOf(answer),
+                            answer,
+                            -1
+                        )
                     }
                     questionRequest.removeObserver(this)
                     if (questionId == 1) {
@@ -109,20 +102,28 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun answerYes() {
-        answer = answerYes
+    fun addAnswer(answerId: Int, answer: String, inc: Int){
+        answer(answerId, answer, inc)
         answersQue.push(answer)
-        calculation.addAnswer(currentQuestion, answer, 1)
         getNextQuestion()
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    fun answerNo() {
-        answer = answerNo
-        answersQue.push(answer)
-        calculation.addAnswer(currentQuestion, answer, 1)
-        getNextQuestion()
+    fun answer(answerId: Int, answer: String, inc: Int) {
+        //Type of test
+        if (testIsComplex) {
+            //Compex test
+            val list = currentQuestion?.type!!.split(";")
+            calculation.addAnswer(
+                currentQuestion,
+                list[answerId], currentQuestion?.answer!!, inc
+            )
+        } else {
+            //YES/NO test
+            calculation.addAnswer(currentQuestion, currentQuestion?.type!!, answer, inc)
+        }
     }
+
 
     private fun reset() {
         answersQue.clear()
@@ -142,10 +143,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             for (i in 0 until arr.size) {
                 repository.addAnswer(
                     Answer(
-                        (i.toString()+tableName+userName).hashCode() ,
+                        (i.toString() + tableName + userName).hashCode(),
                         userName!!,
                         tableName,
-                        i+1,
+                        i + 1,
                         arr.removeLast()
                     )
                 )
@@ -179,12 +180,12 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
 
-    fun saveResultToPrefs(){
-        sharedPrefs.saveResults(calculation.getResultString(),userName+tableName)
+    fun saveResultToPrefs() {
+        sharedPrefs.saveResults(calculation.getResultString(), userName + tableName)
     }
 
-    fun getResultToPrefs(userName:String, tableName:String):String{
-        return sharedPrefs.getResult(userName+tableName)
+    fun getResultToPrefs(userName: String, tableName: String): String {
+        return sharedPrefs.getResult(userName + tableName)
     }
 }
 

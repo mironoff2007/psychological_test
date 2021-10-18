@@ -114,7 +114,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                 getQuestionByIdForPrint(i,selectedTable)
             }
         })
-
     }
 
 
@@ -128,14 +127,13 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
                     pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)
                     pdfCreator.addLine(
-                        "Ответ - "+ answerList[i-1]?.answer,
+                        "\n Ответ - "+ answerList[i-1]?.answer,
                         Layout.Alignment.ALIGN_CENTER
                     )
                     pdfCreator.addLine(
                         "___________________________________________\n",
                         Layout.Alignment.ALIGN_CENTER
                     )
-
                     i++
                     questionRequest.removeObserver(this)
                     getQuestionByIdForPrint(i,selectedTable)

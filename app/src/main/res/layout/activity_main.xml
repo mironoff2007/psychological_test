@@ -41,14 +41,8 @@
         android:layout_weight="0"
         android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@id/questionText"
-        tools:layout_editor_absoluteX="10dp" />
+        />
 
-    <FrameLayout
-        android:id="@+id/container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/progressBar" />
 
     <Button
         android:id="@+id/prevButton"
@@ -57,16 +51,6 @@
         android:layout_marginStart="32dp"
         android:layout_marginBottom="50dp"
         android:text="@string/button_prev"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/noButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="170dp"
-        android:layout_marginBottom="50dp"
-        android:text="@string/answer_no"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -82,37 +66,64 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <RadioGroup
+        android:id="@+id/radioButton_group"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toTopOf="@+id/noButton"
+        app:layout_constraintBottom_toTopOf="@+id/yesButton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/container">
+        app:layout_constraintTop_toBottomOf="@+id/questionText">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
         <RadioButton
             android:id="@+id/radio_1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:layout_marginLeft="24dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:text="Какой-то текст"
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
         <RadioButton
             android:id="@+id/radio_2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="top"
             android:layout_marginLeft="24dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
         <RadioButton
             android:id="@+id/radio_3"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:enabled="false"
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />
 
         <RadioButton
             android:id="@+id/radio_4"
@@ -120,7 +131,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="24dp"
             android:layout_weight="1"
-            android:checked="false" />
+            android:checked="false"
+            android:enabled="false"
+            android:textSize="20dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@android:color/black" />/>
     </RadioGroup>
 
 

@@ -7,6 +7,7 @@
         <item>vargi_stolen_par_rel</item>
         <item>shmishek_leongard_character_and_temperament</item>
         <item>bass_darka_state_aggression</item>
+        <item>family_parenting_strategies</item>
     </string-array>
 
     <string-array name="testsNames">
@@ -15,6 +16,7 @@
         <item>Варги—Столина(ОРО)</item>
         <item>Г. Шмишека, К. Леонгарда - Акцентуации характера и темперамента</item>
         <item>Состояния агрессии Баса-Дарки</item>
+        <item>Стратегии семейного воспитания</item>
     </string-array>
 
     <string name="answer_yes">да</string>
