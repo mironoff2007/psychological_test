@@ -6,10 +6,13 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.pdf.PdfDocument;
+import android.os.Build;
 import android.text.DynamicLayout;
 import android.text.Layout;
 import android.text.TextPaint;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -39,7 +42,8 @@ public class PdfCreator {
 
     private String filePath;
 
-    public void createpdf(String filePath,int pageWidth,int pageHeight) {
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void createpdf(String filePath, int pageWidth, int pageHeight) {
         this.filePath=filePath;
         bounds = new Rect();
 
@@ -61,6 +65,7 @@ public class PdfCreator {
         canvas.save();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void addLine(String text, Layout.Alignment alignment ){
         int tab=0;
         if(alignment.equals(Layout.Alignment.ALIGN_NORMAL)){tab=10;}
@@ -81,6 +86,7 @@ public class PdfCreator {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private void addPage(String text, Layout.Alignment alignment){
 
         pdfDocument.finishPage(currentPage);
@@ -94,6 +100,7 @@ public class PdfCreator {
     }
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public void writePDF(){
         pdfDocument.finishPage(currentPage);
         File file = new File(filePath);

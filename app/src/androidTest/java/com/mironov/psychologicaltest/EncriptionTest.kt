@@ -89,33 +89,16 @@ public class EncriptionTest {
         } catch (e: NoSuchAlgorithmException) {
             Log.d("My_tag", e.toString())
         }
-        val passphraseOrPin = "".toCharArray()
+        val passphraseOrPin = "суперпсихолог".toCharArray()
         val salt = "намылить".encodeToByteArray()
         val keySpec: KeySpec = PBEKeySpec(passphraseOrPin, salt, iterations, outputKeyLength)
 
-        Log.d("My_tag", "key="+keyFactory?.generateSecret(keySpec)?.encoded)
-
-        var keyFactory2: SecretKeyFactory?
-        keyFactory2=null
-
-        try {
-            keyFactory2 = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        } catch (e: NoSuchAlgorithmException) {
-            Log.d("My_tag", e.toString())
-        }
-        val passphraseOrPin2 = "".toCharArray()
-        val salt2 = "намылить".encodeToByteArray()
-        val keySpec2: KeySpec = PBEKeySpec(passphraseOrPin2, salt2, iterations, outputKeyLength)
 
         val h1=keyFactory?.generateSecret(keySpec)
-        val h2=keyFactory2?.generateSecret(keySpec2)
 
         val enc1=h1?.encoded
-        val enc2=byteArrayOf(107, -116)
+        val enc2=byteArrayOf(-122, -82, -121, 119, 2, 74, 78, 126, 116, 98, 109, 28, 58, 105, 0, 7, -85, -102, 121, 79, 72, 40, 114, 115, -28, 107, 103, -114, -22, 3, 78, 49)
 
-
-        val enc1Hash=h1?.encoded.hashCode()
-        val enc2Hash=h2?.encoded.hashCode()
 
         assertEquals(enc1?.contentEquals(enc2),true )
     }

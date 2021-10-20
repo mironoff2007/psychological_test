@@ -7,10 +7,10 @@ import javax.crypto.spec.PBEKeySpec
 
 class LoginProvider {
 
-     val key= byteArrayOf(-95, 117, -112, -11, 17, 78, -124, -55, -9, -37, -31, 49, -13, 109, -6, -50, 93, 7, 38, -75, 67, -55, -92, 54, -111, 3, 31, 10, -28, -22, 92, 87)
+     val key= byteArrayOf(-122, -82, -121, 119, 2, 74, 78, 126, 116, 98, 109, 28, 58, 105, 0, 7, -85, -102, 121, 79, 72, 40, 114, 115, -28, 107, 103, -114, -22, 3, 78, 49)
      val salt = "намылить".encodeToByteArray()
 
-     fun checkPassword( password:String):Boolean {
+     fun checkPasswordWithKeyFactory( password:String):Boolean {
           val iterations = 1000;
 
           // Generate a 256-bit key
@@ -19,7 +19,7 @@ class LoginProvider {
           keyFactory=null
 
           try {
-               keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+               keyFactory = SecretKeyFactory.getInstance("PBEwithHmacSHA1");
           } catch (e: NoSuchAlgorithmException) {
 
           }
@@ -29,5 +29,10 @@ class LoginProvider {
           val p=keyFactory?.generateSecret(keySpec)?.encoded
 
           return key.contentEquals(p)
+     }
+
+     fun checkPassword( password:String):Boolean {
+          val key="суперпсихолог"
+          return key.contentEquals(password)
      }
 }
