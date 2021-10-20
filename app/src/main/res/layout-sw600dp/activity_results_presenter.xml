@@ -13,7 +13,7 @@
         android:layout_marginStart="24dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="24dp"
-        android:textSize="30dp"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -53,31 +53,37 @@
         android:layout_marginStart="16dp"
         android:layout_marginBottom="20dp"
         android:textSize="30sp"
-        android:text="@string/button_create_pdf"
+        android:text="@string/button_create"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginLeft="20dp" />
 
 
-    <TextView
-        android:id="@+id/result_text"
+    <ScrollView
         android:layout_width="match_parent"
-
         android:layout_height="0dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="16dp"
-        android:scrollbars="horizontal"
-        android:text=""
-        android:textColor="@color/black"
-        android:textSize="30sp"
         app:layout_constraintBottom_toTopOf="@+id/createButton"
+        app:layout_constraintTop_toBottomOf="@+id/progressBarResults"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/progressBarResults"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp" />
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:fadeScrollbars="false"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp">
+        <TextView
+            android:id="@+id/result_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="horizontal"
+            android:text=""
+            android:textColor="@color/black"
+            android:textSize="30dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:fadeScrollbars="false"/>
+    </ScrollView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
