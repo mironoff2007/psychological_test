@@ -24,7 +24,7 @@
     <string name="button_begin">сначала</string>
     <string name="button_prev">назад</string>
     <string name="initial_question_text">Вопрос</string>
-    <string name="button_create_pdf">создать pdf</string>
+    <string name="button_create">создать документ</string>
     <string name="button_save_user_data">сохранить</string>
     <string name="hint_input_user_data">Введите имя и фамилию</string>
     <string name="print_answer">Ответ - </string>

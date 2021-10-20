@@ -6,18 +6,14 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.*
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModelProvider
 import com.mironov.psychologicaltest.constants.KeysContainer
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_ID
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
-import kotlinx.android.synthetic.main.activity_main.*
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
@@ -213,7 +209,7 @@ class ResultsActivity : AppCompatActivity() {
                     progressBar.isEnabled = false
                     progressBar.visibility = View.GONE
 
-                    viewPdfFile(filePath)
+                    viewFile(filePath)
                 }
                 ResultsStatus.LOADING -> {
                     progressBar.isEnabled = true
@@ -226,12 +222,21 @@ class ResultsActivity : AppCompatActivity() {
     private fun setupButtonsListeners() {
 
         createButton.setOnClickListener { v: View? ->
-            filePath = rootPath + userName + "-" + testName + ".pdf"
-            viewModel.printResults(filePath, selectedTest.toString(), selectedUser.toString())
+            createDocument()
         }
     }
 
-    private fun viewPdfFile(path: String?) {
+    private fun createDocument(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
+            viewModel.printResultsToPDF(filePath, selectedTest.toString(), selectedUser.toString())
+        } else {
+            filePath = rootPath + selectedUser + "-" + selectedTest + ".txt"
+            viewModel.printResultsToTXT(filePath, selectedTest.toString(), selectedUser.toString())
+        }
+    }
+
+    private fun viewFile(path: String?) {
         val file = File(path)
         val intent = Intent(
             Intent.ACTION_VIEW,

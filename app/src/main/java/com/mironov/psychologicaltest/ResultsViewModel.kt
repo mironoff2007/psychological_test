@@ -2,9 +2,8 @@ package com.mironov.psychologicaltest
 
 import android.app.Application
 import android.os.Build
-import android.os.Bundle
 import android.text.Layout
-import android.util.Log
+import android.view.contentcapture.DataShareRequest
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -17,6 +16,7 @@ import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.Repository
+import com.mironov.psychologicaltest.repository.TextCreator
 import com.mironov.psychologicaltest.util.PdfCreator
 
 class ResultsViewModel(application: Application) : AndroidViewModel(application) {
@@ -37,9 +37,12 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     lateinit var answerList: ArrayList<Answer?>
 
-    lateinit var sharedPrefs: DataShared
+
+    lateinit var textDocument:TextCreator
 
     val pdfCreator = PdfCreator()
+    lateinit var sharedPrefs:DataShared
+
     var path: String = ""
     var i:Int=0
 
@@ -54,8 +57,8 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         ).answerDao()
         repository = Repository(questionDao, answerDao)
 
-        sharedPrefs=DataShared(application.applicationContext)
 
+        sharedPrefs=DataShared(application.applicationContext)
     }
 
 
@@ -95,7 +98,8 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         return resultText
     }
 
-    fun printResults(path: String,selectedTable:String,selectedUser:String) {
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    fun printResultsToPDF(path: String, selectedTable:String, selectedUser:String) {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
 
         this.path = path
@@ -111,17 +115,19 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
             override fun onChanged(list: List<Answer?>?) {
                 answerList= list as ArrayList<Answer?>
                 answerRequest.removeObserver(this)
-                getQuestionByIdForPrint(i,selectedTable)
+                getQuestionByIdForPrintPDF(i,selectedTable)
             }
         })
     }
 
 
-    private fun getQuestionByIdForPrint(id: Int,selectedTable:String) {
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
+    private fun getQuestionByIdForPrintPDF(id: Int, selectedTable:String) {
         val maxId=answerList.size
         if (id <= maxId) {
             questionRequest=repository.getQuestionById(selectedTable, id)
                 questionRequest.observeForever(object : Observer<Question?> {
+                @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onChanged(q: Question?) {
 
                     pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)
@@ -135,7 +141,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                     )
                     i++
                     questionRequest.removeObserver(this)
-                    getQuestionByIdForPrint(i,selectedTable)
+                    getQuestionByIdForPrintPDF(i,selectedTable)
                 }
             })
         } else {
@@ -143,6 +149,45 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
             pdfCreator.addLine(resultText, Layout.Alignment.ALIGN_NORMAL)
             pdfCreator.writePDF()
            resultsModelStatus.postValue(ResultsStatus.PRINTED)
+        }
+    }
+
+    fun printResultsToTXT(filePath: String, selectedTable:String, selectedUser:String) {
+
+        textDocument=TextCreator()
+        textDocument.createTextFile(filePath)
+
+        this.path = path
+        i = 1
+        answerRequest=repository.readAnswersByTest(selectedTable,selectedUser)
+        answerRequest.observeForever(object : Observer<List<Answer?>> {
+            override fun onChanged(list: List<Answer?>?) {
+                answerList= list as ArrayList<Answer?>
+                answerRequest.removeObserver(this)
+                getQuestionByIdForPrintTXT(i,selectedTable)
+            }
+        })
+    }
+    private fun getQuestionByIdForPrintTXT(id: Int, selectedTable:String) {
+        val maxId=answerList.size
+        if (id <= maxId) {
+            questionRequest=repository.getQuestionById(selectedTable, id)
+            questionRequest.observeForever(object : Observer<Question?> {
+                @RequiresApi(Build.VERSION_CODES.KITKAT)
+                override fun onChanged(q: Question?) {
+
+                    textDocument.appendText("\n$i. " + q?.questionText)
+                    textDocument.appendText("\n Ответ - "+ answerList[i-1]?.answer,)
+                    textDocument.appendText("\n___________________________________________\n",)
+                    i++
+                    questionRequest.removeObserver(this)
+                    getQuestionByIdForPrintTXT(i,selectedTable)
+                }
+            })
+        } else {
+            textDocument.appendText(resultText,)
+            textDocument.closeTextFile()
+            resultsModelStatus.postValue(ResultsStatus.PRINTED)
         }
     }
 }
