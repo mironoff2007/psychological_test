@@ -1,9 +1,9 @@
 package com.mironov.psychologicaltest
 
 import android.app.Application
+import android.content.Context
 import android.os.Build
 import android.text.Layout
-import android.view.contentcapture.DataShareRequest
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -15,6 +15,7 @@ import com.mironov.psychologicaltest.data.AnswerDatabase
 import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
+import com.mironov.psychologicaltest.repository.DbSaveRead
 import com.mironov.psychologicaltest.repository.Repository
 import com.mironov.psychologicaltest.repository.TextCreator
 import com.mironov.psychologicaltest.util.PdfCreator
@@ -41,25 +42,14 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     lateinit var textDocument:TextCreator
 
     val pdfCreator = PdfCreator()
-    lateinit var sharedPrefs:DataShared
+
 
     var path: String = ""
     var i:Int=0
 
     val resultsModelStatus: MutableLiveData<ResultsStatus> = MutableLiveData<ResultsStatus>()
 
-    init {
-        val questionDao = QuestionDatabase.getDatabase(
-            application.applicationContext
-        ).questionDao()
-        val answerDao = AnswerDatabase.getDatabase(
-            application.applicationContext
-        ).answerDao()
-        repository = Repository(questionDao, answerDao)
-
-
-        sharedPrefs=DataShared(application.applicationContext)
-    }
+    init { repository = Repository(application.applicationContext) }
 
 
     fun readUsers() {
@@ -93,9 +83,8 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
 
 
-    fun getResultToPrefs(userName:String, tableName:String):String{
-        resultText=sharedPrefs.getResult(userName+tableName)
-        return resultText
+    fun getResultFromPrefs(userName:String, tableName:String):String{
+        return repository.getResultFromPrefs(userName, tableName)
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
@@ -189,5 +178,10 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
             textDocument.closeTextFile()
             resultsModelStatus.postValue(ResultsStatus.PRINTED)
         }
+    }
+
+    fun saveDbToStorage(path:String,context: Context){
+        val dbSaveRead=DbSaveRead()
+        dbSaveRead.exportDatabase(path, context)
     }
 }

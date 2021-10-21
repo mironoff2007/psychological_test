@@ -50,14 +50,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var testIsComplex: Boolean = false
 
     init {
-        val questionDao = QuestionDatabase.getDatabase(
-            application.applicationContext
-        ).questionDao()
-        val answerDao = AnswerDatabase.getDatabase(
-            application.applicationContext
-        ).answerDao()
-        repository = Repository(questionDao, answerDao)
 
+        repository = Repository(application.applicationContext)
         sharedPrefs = DataShared(application.applicationContext)
     }
 
@@ -180,11 +174,11 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
 
     fun saveResultToPrefs() {
-        sharedPrefs.saveResults(calculation.getResultString(), userName + tableName)
+        repository.saveResultToPrefs(calculation.getResultString(), userName + tableName)
     }
 
-    fun getResultToPrefs(userName: String, tableName: String): String {
-        return sharedPrefs.getResult(userName + tableName)
+    fun getResultFromPrefs(userName:String, tableName:String):String{
+        return repository.getResultFromPrefs(userName, tableName)
     }
 }
 

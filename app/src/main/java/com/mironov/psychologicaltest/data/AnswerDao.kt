@@ -30,4 +30,7 @@ interface AnswerDao {
     @Query("SELECT DISTINCT Answer.testName  FROM Answer Where Answer.user=:userName")
     fun readFinishedTests(userName:String): LiveData<List<String?>>
 
+    @Query("SELECT * FROM Answer")
+    fun readAllAnswers(): LiveData<List<Answer?>>
+
 }

@@ -40,6 +40,7 @@ class ResultsActivity : AppCompatActivity() {
     private var filePath = ""
 
     lateinit var createButton: Button
+    lateinit var exportButton: Button
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,6 +84,7 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun initViews() {
         createButton = findViewById(R.id.createButton)
+        exportButton = findViewById(R.id.exportButton)
         resultText = findViewById(R.id.result_text)
         progressBar = findViewById(R.id.progressBarResults)
         userNameSpinner = findViewById(R.id.spinner_users)
@@ -131,7 +133,7 @@ class ResultsActivity : AppCompatActivity() {
                 selectedTest = testsList[i]
 
                 if (selectedUser != null && selectedTest != null) {
-                    resultText.text = viewModel.getResultToPrefs(selectedUser!!, selectedTest!!)
+                    resultText.text = viewModel.getResultFromPrefs(selectedUser!!, selectedTest!!)
                     filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
                     createButton.isEnabled = true
                 } else {
@@ -223,6 +225,9 @@ class ResultsActivity : AppCompatActivity() {
 
         createButton.setOnClickListener { v: View? ->
             createDocument()
+        }
+        exportButton.setOnClickListener { v: View? ->
+            viewModel.saveDbToStorage(rootPath,applicationContext)
         }
     }
 

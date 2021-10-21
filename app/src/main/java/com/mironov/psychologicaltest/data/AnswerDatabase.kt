@@ -7,7 +7,6 @@ import androidx.room.RoomDatabase
 import com.mironov.psychologicaltest.model.Answer
 
 
-
 @Database(entities = [Answer::class], version = 1, exportSchema = false)
 abstract class AnswerDatabase : RoomDatabase() {
 
@@ -27,8 +26,7 @@ abstract class AnswerDatabase : RoomDatabase() {
                     context.applicationContext,
                     AnswerDatabase::class.java,
                     "psychological_test_answer.db"
-                )
-                    .build()
+                ).setJournalMode(JournalMode.TRUNCATE).build()
                 INSTANCE = instance
                 return instance
             }
