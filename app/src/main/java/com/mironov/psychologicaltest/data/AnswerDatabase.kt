@@ -5,9 +5,10 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.mironov.psychologicaltest.model.Answer
+import com.mironov.psychologicaltest.model.TestResult
 
 
-@Database(entities = [Answer::class], version = 1, exportSchema = false)
+@Database(entities = [Answer::class,TestResult::class], version = 1, exportSchema = false)
 abstract class AnswerDatabase : RoomDatabase() {
 
     abstract fun answerDao(): AnswerDao

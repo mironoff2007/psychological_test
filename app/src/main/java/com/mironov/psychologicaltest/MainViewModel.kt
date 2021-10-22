@@ -9,6 +9,7 @@ import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
+import com.mironov.psychologicaltest.model.TestResult
 import com.mironov.psychologicaltest.repository.Repository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -122,7 +123,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addResultsToDb() {
-        saveResultToPrefs()
         val arr = answersQue.clone()
 
         viewModelStatus.postValue(Status.WRITING_RES_TO_DB)
@@ -138,6 +138,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         arr.removeLast()
                     )
                 )
+                repository.addTestResult(TestResult((tableName + userName).hashCode(),calculation.getResultString()))
             }
         }
     }
@@ -165,15 +166,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         returned = true
         questionId -= 1
         getQuestionById(questionId)
-    }
-
-
-    fun saveResultToPrefs() {
-        repository.saveResultToPrefs(calculation.getResultString(), userName + tableName)
-    }
-
-    fun getResultFromPrefs(userName:String, tableName:String):String{
-        return repository.getResultFromPrefs(userName, tableName)
     }
 }
 

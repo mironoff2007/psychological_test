@@ -156,7 +156,7 @@ class ResultsActivity : AppCompatActivity() {
                 selectedTest = testsList[i]
 
                 if (selectedUser != null && selectedTest != null) {
-                    resultText.text = viewModel.getResultFromPrefs(selectedUser!!, selectedTest!!)
+                    viewModel.getResult(selectedUser!!, selectedTest!!)
                     filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
                     createButton.isEnabled = true
                 } else {
@@ -247,6 +247,11 @@ class ResultsActivity : AppCompatActivity() {
                         Toast.LENGTH_LONG
                     ).show()
                     viewModel.readUsers()
+                }
+                ResultsStatus.RESULTS_LOADED->{
+                    resultText.text=viewModel.resultText
+                    progressBar.isEnabled = false
+                    progressBar.visibility = View.GONE
                 }
             }
         }

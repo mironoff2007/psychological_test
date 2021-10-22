@@ -9,6 +9,7 @@ import androidx.sqlite.db.SimpleSQLiteQuery
 import com.mironov.psychologicaltest.data.*
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
+import com.mironov.psychologicaltest.model.TestResult
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import java.io.File
@@ -61,14 +62,6 @@ class Repository(context: Context) {
         return answerDao.readAllAnswers()
     }
 
-    fun getResultFromPrefs(userName: String, tableName: String): String {
-        return sharedPrefs.getResult(userName + tableName)
-    }
-
-    fun saveResultToPrefs(text: String, name: String) {
-        sharedPrefs.saveResults(text, name)
-    }
-
     fun saveDbToStorage(path: String, context: Context) {
         val dbSaveRead = DbSaveRead()
         dbSaveRead.exportDatabase(path, context)
@@ -82,4 +75,11 @@ class Repository(context: Context) {
         return answerDaoImported.readAllAnswers()
     }
 
+    fun addTestResult(testResult:TestResult){
+        answerDao.addTestResult(testResult)
+    }
+
+    fun readTestResult(id:Int):LiveData<TestResult?> {
+        return answerDao.readTestResult(id)
+    }
 }

@@ -12,7 +12,7 @@ import androidx.lifecycle.Observer
 import com.mironov.psychologicaltest.constants.ResultsStatus
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
-import com.mironov.psychologicaltest.repository.DbSaveRead
+import com.mironov.psychologicaltest.model.TestResult
 import com.mironov.psychologicaltest.repository.Repository
 import com.mironov.psychologicaltest.repository.TextCreator
 import com.mironov.psychologicaltest.util.PdfCreator
@@ -25,10 +25,11 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     private lateinit var finishedTestRequest: LiveData<List<String?>>
     private lateinit var answerRequest: LiveData<List<Answer?>>
     private lateinit var questionRequest: LiveData<Question?>
+    private lateinit var resultRequest: LiveData<TestResult?>
 
     private val repository: Repository
 
-    var resultText=""
+    var resultText = ""
 
     lateinit var usersList: ArrayList<String?>
     lateinit var testsList: ArrayList<String?>
@@ -38,22 +39,24 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     lateinit var answerList: ArrayList<Answer?>
 
 
-    lateinit var textDocument:TextCreator
+    lateinit var textDocument: TextCreator
 
     val pdfCreator = PdfCreator()
 
 
     var path: String = ""
-    var i:Int=0
+    var i: Int = 0
 
     val resultsModelStatus: MutableLiveData<ResultsStatus> = MutableLiveData<ResultsStatus>()
 
-    init { repository = Repository(application.applicationContext) }
+    init {
+        repository = Repository(application.applicationContext)
+    }
 
 
     fun readUsers() {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
-        usersRequest=repository.readUsers()
+        usersRequest = repository.readUsers()
         usersRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
                 usersList = list as ArrayList<String?>
@@ -67,7 +70,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     fun readFinishedTest(userName: String) {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
-        finishedTestRequest=repository.readFinishedTest(userName)
+        finishedTestRequest = repository.readFinishedTest(userName)
         finishedTestRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
 
@@ -80,14 +83,21 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         })
     }
 
+    fun getResult(userName: String, tableName: String) {
+        resultsModelStatus.postValue(ResultsStatus.LOADING)
+        resultRequest = repository.readTestResult((tableName + userName).hashCode())
+        resultRequest.observeForever(object : Observer<TestResult?> {
+            override fun onChanged(result: TestResult?) {
+                resultText = result?.resultText.toString()
+                resultRequest.removeObserver(this)
+                resultsModelStatus.postValue(ResultsStatus.RESULTS_LOADED)
 
-
-    fun getResultFromPrefs(userName:String, tableName:String):String{
-        return repository.getResultFromPrefs(userName, tableName)
+            }
+        })
     }
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    fun printResultsToPDF(path: String, selectedTable:String, selectedUser:String) {
+    fun printResultsToPDF(path: String, selectedTable: String, selectedUser: String) {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
 
         this.path = path
@@ -98,29 +108,29 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
             "___________________________________________\n",
             Layout.Alignment.ALIGN_CENTER
         )
-        answerRequest=repository.readAnswersByTest(selectedTable,selectedUser)
+        answerRequest = repository.readAnswersByTest(selectedTable, selectedUser)
         answerRequest.observeForever(object : Observer<List<Answer?>> {
             override fun onChanged(list: List<Answer?>?) {
-                answerList= list as ArrayList<Answer?>
+                answerList = list as ArrayList<Answer?>
                 answerRequest.removeObserver(this)
-                getQuestionByIdForPrintPDF(i,selectedTable)
+                getQuestionByIdForPrintPDF(i, selectedTable)
             }
         })
     }
 
 
     @RequiresApi(Build.VERSION_CODES.KITKAT)
-    private fun getQuestionByIdForPrintPDF(id: Int, selectedTable:String) {
-        val maxId=answerList.size
+    private fun getQuestionByIdForPrintPDF(id: Int, selectedTable: String) {
+        val maxId = answerList.size
         if (id <= maxId) {
-            questionRequest=repository.getQuestionById(selectedTable, id)
-                questionRequest.observeForever(object : Observer<Question?> {
+            questionRequest = repository.getQuestionById(selectedTable, id)
+            questionRequest.observeForever(object : Observer<Question?> {
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onChanged(q: Question?) {
 
                     pdfCreator.addLine("$i. " + q?.questionText, Layout.Alignment.ALIGN_NORMAL)
                     pdfCreator.addLine(
-                        "\n Ответ - "+ answerList[i-1]?.answer,
+                        "\n Ответ - " + answerList[i - 1]?.answer,
                         Layout.Alignment.ALIGN_CENTER
                     )
                     pdfCreator.addLine(
@@ -129,68 +139,71 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                     )
                     i++
                     questionRequest.removeObserver(this)
-                    getQuestionByIdForPrintPDF(i,selectedTable)
+                    getQuestionByIdForPrintPDF(i, selectedTable)
                 }
             })
         } else {
 
             pdfCreator.addLine(resultText, Layout.Alignment.ALIGN_NORMAL)
             pdfCreator.writePDF()
-           resultsModelStatus.postValue(ResultsStatus.PRINTED)
+            resultsModelStatus.postValue(ResultsStatus.PRINTED)
         }
     }
 
-    fun printResultsToTXT(filePath: String, selectedTable:String, selectedUser:String) {
+    fun printResultsToTXT(filePath: String, selectedTable: String, selectedUser: String) {
 
-        textDocument=TextCreator()
+        textDocument = TextCreator()
         textDocument.createTextFile(filePath)
 
         this.path = path
         i = 1
-        answerRequest=repository.readAnswersByTest(selectedTable,selectedUser)
+        answerRequest = repository.readAnswersByTest(selectedTable, selectedUser)
         answerRequest.observeForever(object : Observer<List<Answer?>> {
             override fun onChanged(list: List<Answer?>?) {
-                answerList= list as ArrayList<Answer?>
+                answerList = list as ArrayList<Answer?>
                 answerRequest.removeObserver(this)
-                getQuestionByIdForPrintTXT(i,selectedTable)
+                getQuestionByIdForPrintTXT(i, selectedTable)
             }
         })
     }
-    private fun getQuestionByIdForPrintTXT(id: Int, selectedTable:String) {
-        val maxId=answerList.size
+
+    private fun getQuestionByIdForPrintTXT(id: Int, selectedTable: String) {
+        val maxId = answerList.size
         if (id <= maxId) {
-            questionRequest=repository.getQuestionById(selectedTable, id)
+            questionRequest = repository.getQuestionById(selectedTable, id)
             questionRequest.observeForever(object : Observer<Question?> {
                 @RequiresApi(Build.VERSION_CODES.KITKAT)
                 override fun onChanged(q: Question?) {
 
                     textDocument.appendText("\n$i. " + q?.questionText)
-                    textDocument.appendText("\n Ответ - "+ answerList[i-1]?.answer,)
-                    textDocument.appendText("\n___________________________________________\n",)
+                    textDocument.appendText("\n Ответ - " + answerList[i - 1]?.answer)
+                    textDocument.appendText("\n___________________________________________\n")
                     i++
                     questionRequest.removeObserver(this)
-                    getQuestionByIdForPrintTXT(i,selectedTable)
+                    getQuestionByIdForPrintTXT(i, selectedTable)
                 }
             })
         } else {
-            textDocument.appendText(resultText,)
+            textDocument.appendText(resultText)
             textDocument.closeTextFile()
             resultsModelStatus.postValue(ResultsStatus.PRINTED)
         }
     }
 
-    fun saveDbToStorage(path:String,context: Context){
-        repository.saveDbToStorage(path,context)
+    fun saveDbToStorage(path: String, context: Context) {
+        repository.saveDbToStorage(path, context)
     }
 
-    fun readDbFromStorage(path:String,context: Context){
-        repository.readDbFromStorage(path,context).observeForever(object : Observer<List<Answer?>> {
-            override fun onChanged(list: List<Answer?>) {
-                GlobalScope.launch  {
-                    repository.answerDao.insertAll(list as List<Answer>)
-                    resultsModelStatus.postValue(ResultsStatus.IMPORTED_FROM_STORAGE)
+    fun readDbFromStorage(path: String, context: Context) {
+        repository.readDbFromStorage(path, context)
+            .observeForever(object : Observer<List<Answer?>> {
+                override fun onChanged(list: List<Answer?>) {
+                    GlobalScope.launch {
+                        repository.answerDao.insertAll(list as List<Answer>)
+                        resultsModelStatus.postValue(ResultsStatus.IMPORTED_FROM_STORAGE)
+                    }
                 }
-            }
-        })
+            })
     }
+
 }
