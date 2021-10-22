@@ -1,17 +1,12 @@
 package com.mironov.psychologicaltest.repository
 
 import android.content.Context
-import android.os.AsyncTask
-import android.widget.Toast
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.mironov.psychologicaltest.data.*
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.model.TestResult
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.io.File
 
 class Repository(context: Context) {
@@ -67,12 +62,20 @@ class Repository(context: Context) {
         dbSaveRead.exportDatabase(path, context)
     }
 
-    fun readDbFromStorage(path: String, context: Context): LiveData<List<Answer?>> {
+    fun importAnswers(path: String, context: Context): LiveData<List<Answer?>> {
         var file = File(path + "exported_db.sqlite")
         if (file.canRead()) {
             answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
         }
         return answerDaoImported.readAllAnswers()
+    }
+
+    fun importResult(path: String, context: Context): LiveData<List<TestResult?>> {
+        var file = File(path + "exported_db.sqlite")
+        if (file.canRead()) {
+            answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
+        }
+        return answerDaoImported.readAllTestResult()
     }
 
     fun addTestResult(testResult:TestResult){

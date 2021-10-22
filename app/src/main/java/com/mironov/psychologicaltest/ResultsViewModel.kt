@@ -5,10 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.text.Layout
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
+import androidx.lifecycle.*
 import com.mironov.psychologicaltest.constants.ResultsStatus
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
@@ -16,7 +13,7 @@ import com.mironov.psychologicaltest.model.TestResult
 import com.mironov.psychologicaltest.repository.Repository
 import com.mironov.psychologicaltest.repository.TextCreator
 import com.mironov.psychologicaltest.util.PdfCreator
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class ResultsViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,6 +23,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     private lateinit var answerRequest: LiveData<List<Answer?>>
     private lateinit var questionRequest: LiveData<Question?>
     private lateinit var resultRequest: LiveData<TestResult?>
+    private lateinit var requestResultList: LiveData<List<TestResult?>>
 
     private val repository: Repository
 
@@ -195,11 +193,22 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun readDbFromStorage(path: String, context: Context) {
-        repository.readDbFromStorage(path, context)
-            .observeForever(object : Observer<List<Answer?>> {
+        answerRequest=repository.importAnswers(path, context)
+        answerRequest.observeForever(object : Observer<List<Answer?>> {
                 override fun onChanged(list: List<Answer?>) {
-                    GlobalScope.launch {
-                        repository.answerDao.insertAll(list as List<Answer>)
+                    answerRequest.removeObserver(this)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        repository.answerDao.insertAllAnswers(list as List<Answer>)
+                        requestResultList=repository.importResult(path, context)
+                    }
+                }
+            })
+
+        requestResultList.observeForever(object : Observer<List<TestResult?>> {
+                override fun onChanged(list: List<TestResult?>) {
+                    requestResultList.removeObserver(this)
+                    viewModelScope.launch(Dispatchers.IO) {
+                        repository.answerDao.insertAllResults(list as List<TestResult>)
                         resultsModelStatus.postValue(ResultsStatus.IMPORTED_FROM_STORAGE)
                     }
                 }

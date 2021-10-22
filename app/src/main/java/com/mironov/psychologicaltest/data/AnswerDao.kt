@@ -17,7 +17,11 @@ interface AnswerDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     @JvmSuppressWildcards
-    fun insertAll(list: List<Answer>)
+    fun insertAllAnswers(list: List<Answer>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @JvmSuppressWildcards
+    fun insertAllResults(list: List<TestResult>)
 
     @Update
     suspend fun updateAnswer(answer: Answer)
