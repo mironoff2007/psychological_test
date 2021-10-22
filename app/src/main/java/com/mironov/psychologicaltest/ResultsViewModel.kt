@@ -192,27 +192,32 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         repository.saveDbToStorage(path, context)
     }
 
-    fun readDbFromStorage(path: String, context: Context) {
+    fun importAnswers(path: String, context: Context) {
         answerRequest=repository.importAnswers(path, context)
         answerRequest.observeForever(object : Observer<List<Answer?>> {
                 override fun onChanged(list: List<Answer?>) {
+
                     answerRequest.removeObserver(this)
                     viewModelScope.launch(Dispatchers.IO) {
                         repository.answerDao.insertAllAnswers(list as List<Answer>)
-                        requestResultList=repository.importResult(path, context)
+                        resultsModelStatus.postValue(ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE)
                     }
                 }
             })
 
+
+    }
+    fun importResults(path: String, context: Context) {
+        requestResultList=repository.importResult(path, context)
         requestResultList.observeForever(object : Observer<List<TestResult?>> {
-                override fun onChanged(list: List<TestResult?>) {
-                    requestResultList.removeObserver(this)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        repository.answerDao.insertAllResults(list as List<TestResult>)
-                        resultsModelStatus.postValue(ResultsStatus.IMPORTED_FROM_STORAGE)
-                    }
+            override fun onChanged(list: List<TestResult?>) {
+                requestResultList.removeObserver(this)
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.answerDao.insertAllResults(list as List<TestResult>)
+                    resultsModelStatus.postValue(ResultsStatus.IMPORTED_RESULTS_FROM_STORAGE)
                 }
-            })
+            }
+        })
     }
 
 }

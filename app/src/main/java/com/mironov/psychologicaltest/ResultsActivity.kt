@@ -43,7 +43,6 @@ class ResultsActivity : AppCompatActivity() {
     private var filePath = ""
 
     lateinit var createButton: Button
-    lateinit var exportButton: Button
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,7 +83,7 @@ class ResultsActivity : AppCompatActivity() {
                 true
             }
             R.id.import_from_storage -> {
-                viewModel.readDbFromStorage(rootPath,applicationContext)
+                viewModel.importAnswers(rootPath,applicationContext)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -107,7 +106,6 @@ class ResultsActivity : AppCompatActivity() {
 
     private fun initViews() {
         createButton = findViewById(R.id.createButton)
-        exportButton = findViewById(R.id.exportButton)
         resultText = findViewById(R.id.result_text)
         progressBar = findViewById(R.id.progressBarResults)
         userNameSpinner = findViewById(R.id.spinner_users)
@@ -240,7 +238,10 @@ class ResultsActivity : AppCompatActivity() {
                     progressBar.isEnabled = true
                     progressBar.visibility = View.VISIBLE
                 }
-                ResultsStatus.IMPORTED_FROM_STORAGE->{
+                ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE->{
+                    viewModel.importResults(rootPath,applicationContext)
+                }
+                ResultsStatus.IMPORTED_RESULTS_FROM_STORAGE->{
                     Toast.makeText(
                         applicationContext,
                         "импортировано",
@@ -261,9 +262,6 @@ class ResultsActivity : AppCompatActivity() {
 
         createButton.setOnClickListener { v: View? ->
             createDocument()
-        }
-        exportButton.setOnClickListener { v: View? ->
-            viewModel.saveDbToStorage(rootPath,applicationContext)
         }
     }
 

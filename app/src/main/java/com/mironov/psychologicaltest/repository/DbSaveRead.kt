@@ -2,6 +2,7 @@ package com.mironov.psychologicaltest.repository
 
 import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.mironov.psychologicaltest.data.AnswerDatabase
 import java.io.File
 import java.io.FileInputStream
@@ -23,7 +24,11 @@ class DbSaveRead() {
                 dst.transferFrom(src, 0, src.size())
                 src.close()
                 dst.close()
-                Log.d("My_tag", "saved to -$path")
+                Toast.makeText(
+                    context,
+                    "сохранено - $path+/$backupDBPath",
+                    Toast.LENGTH_LONG
+                ).show()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
