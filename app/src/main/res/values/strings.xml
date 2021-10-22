@@ -35,6 +35,8 @@
     <string name="input_password">Введите пароль</string>
     <string name="wrong_password">Неверный пароль</string>
     <string name="add_mew_user">Новый пользватель</string>
+    <string name="export">экспорт</string>
+    <string name="import_from_storage">импорт</string>
 
 
 </resources>

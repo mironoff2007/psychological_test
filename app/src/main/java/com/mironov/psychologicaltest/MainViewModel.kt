@@ -1,15 +1,11 @@
 package com.mironov.psychologicaltest
 
 import android.app.Application
-import android.os.Build
 import androidx.annotation.Nullable
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
-import com.mironov.currency_converter.data.DataShared
+import com.mironov.psychologicaltest.data.DataShared
 import com.mironov.psychologicaltest.constants.Status
-import com.mironov.psychologicaltest.data.AnswerDatabase
-import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
 import com.mironov.psychologicaltest.model.Question
@@ -50,7 +46,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     var testIsComplex: Boolean = false
 
     init {
-
         repository = Repository(application.applicationContext)
         sharedPrefs = DataShared(application.applicationContext)
     }

@@ -9,16 +9,15 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.mironov.currency_converter.data.DataShared
 import com.mironov.psychologicaltest.constants.ResultsStatus
-import com.mironov.psychologicaltest.data.AnswerDatabase
-import com.mironov.psychologicaltest.data.QuestionDatabase
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.repository.DbSaveRead
 import com.mironov.psychologicaltest.repository.Repository
 import com.mironov.psychologicaltest.repository.TextCreator
 import com.mironov.psychologicaltest.util.PdfCreator
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class ResultsViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -181,7 +180,17 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun saveDbToStorage(path:String,context: Context){
-        val dbSaveRead=DbSaveRead()
-        dbSaveRead.exportDatabase(path, context)
+        repository.saveDbToStorage(path,context)
+    }
+
+    fun readDbFromStorage(path:String,context: Context){
+        repository.readDbFromStorage(path,context).observeForever(object : Observer<List<Answer?>> {
+            override fun onChanged(list: List<Answer?>) {
+                GlobalScope.launch  {
+                    repository.answerDao.insertAll(list as List<Answer>)
+                    resultsModelStatus.postValue(ResultsStatus.IMPORTED_FROM_STORAGE)
+                }
+            }
+        })
     }
 }

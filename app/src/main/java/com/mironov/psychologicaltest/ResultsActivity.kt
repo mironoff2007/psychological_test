@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
+import com.mironov.psychologicaltest.ui.LoginFragment
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
@@ -68,6 +71,26 @@ class ResultsActivity : AppCompatActivity() {
 
         rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.results_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.export_to_storage-> {
+                viewModel.saveDbToStorage(rootPath,applicationContext)
+                true
+            }
+            R.id.import_from_storage -> {
+                viewModel.readDbFromStorage(rootPath,applicationContext)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         outState?.run {
@@ -216,6 +239,14 @@ class ResultsActivity : AppCompatActivity() {
                 ResultsStatus.LOADING -> {
                     progressBar.isEnabled = true
                     progressBar.visibility = View.VISIBLE
+                }
+                ResultsStatus.IMPORTED_FROM_STORAGE->{
+                    Toast.makeText(
+                        applicationContext,
+                        "импортировано",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    viewModel.readUsers()
                 }
             }
         }

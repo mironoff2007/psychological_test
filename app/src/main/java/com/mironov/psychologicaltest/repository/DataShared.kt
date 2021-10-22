@@ -1,4 +1,4 @@
-package com.mironov.currency_converter.data
+package com.mironov.psychologicaltest.data
 
 import android.content.Context
 import android.content.SharedPreferences
