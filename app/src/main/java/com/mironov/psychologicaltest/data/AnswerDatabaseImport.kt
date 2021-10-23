@@ -23,9 +23,10 @@ abstract class AnswerDatabaseImport : RoomDatabase() {
             if (tempInstance != null) {
                 return tempInstance
             }
+            context.deleteDatabase("answer_imported.sqlite")
             synchronized(this) {
                 val instance = Room.databaseBuilder(
-                    context.applicationContext,
+                    context,
                     AnswerDatabaseImport ::class.java,
                     "answer_imported.sqlite"
                 ).createFromFile(file)
