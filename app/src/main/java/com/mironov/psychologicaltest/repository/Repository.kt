@@ -1,8 +1,10 @@
 package com.mironov.psychologicaltest.repository
 
 import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.data.*
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
@@ -62,12 +64,18 @@ class Repository(context: Context) {
         dbSaveRead.exportDatabase(path, context)
     }
 
-    fun importAnswers(path: String, context: Context): LiveData<List<Answer?>> {
+    fun importAnswers(path: String, context: Context): LiveData<List<Answer?>>? {
         var file = File(path + "exported_db.sqlite")
         if (file.canRead()) {
             answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
-        }
         return answerDaoImported.readAllAnswers()
+        }
+        Toast.makeText(
+            context,
+            context.getString(R.string.import_failed),
+            Toast.LENGTH_LONG
+        ).show()
+        return null
     }
 
     fun importResult(path: String, context: Context): LiveData<List<TestResult?>> {

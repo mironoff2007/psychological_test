@@ -21,6 +21,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     private lateinit var usersRequest: LiveData<List<String?>>
     private lateinit var finishedTestRequest: LiveData<List<String?>>
     private lateinit var answerRequest: LiveData<List<Answer?>>
+    private          var importAnswerRequest: LiveData<List<Answer?>>?=null
     private lateinit var questionRequest: LiveData<Question?>
     private lateinit var resultRequest: LiveData<TestResult?>
     private lateinit var requestResultList: LiveData<List<TestResult?>>
@@ -36,13 +37,11 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     lateinit var answerList: ArrayList<Answer?>
 
-
     lateinit var textDocument: TextCreator
 
     val pdfCreator = PdfCreator()
 
 
-    var path: String = ""
     var i: Int = 0
 
     val resultsModelStatus: MutableLiveData<ResultsStatus> = MutableLiveData<ResultsStatus>()
@@ -89,7 +88,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                 resultText = result?.resultText.toString()
                 resultRequest.removeObserver(this)
                 resultsModelStatus.postValue(ResultsStatus.RESULTS_LOADED)
-
             }
         })
     }
@@ -98,7 +96,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     fun printResultsToPDF(path: String, selectedTable: String, selectedUser: String) {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
 
-        this.path = path
         i = 1
         pdfCreator.createpdf(path, 300, 500)
         pdfCreator.addLine(selectedUser, Layout.Alignment.ALIGN_CENTER)
@@ -141,7 +138,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                 }
             })
         } else {
-
             pdfCreator.addLine(resultText, Layout.Alignment.ALIGN_NORMAL)
             pdfCreator.writePDF()
             resultsModelStatus.postValue(ResultsStatus.PRINTED)
@@ -153,7 +149,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         textDocument = TextCreator()
         textDocument.createTextFile(filePath)
 
-        this.path = path
         i = 1
         answerRequest = repository.readAnswersByTest(selectedTable, selectedUser)
         answerRequest.observeForever(object : Observer<List<Answer?>> {
@@ -193,11 +188,10 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun importAnswers(path: String, context: Context) {
-        answerRequest=repository.importAnswers(path, context)
-        answerRequest.observeForever(object : Observer<List<Answer?>> {
+        importAnswerRequest=repository.importAnswers(path, context)
+        importAnswerRequest?.observeForever(object : Observer<List<Answer?>> {
                 override fun onChanged(list: List<Answer?>) {
-
-                    answerRequest.removeObserver(this)
+                    importAnswerRequest?.removeObserver(this)
                     viewModelScope.launch(Dispatchers.IO) {
                         repository.answerDao.insertAllAnswers(list as List<Answer>)
                         resultsModelStatus.postValue(ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE)

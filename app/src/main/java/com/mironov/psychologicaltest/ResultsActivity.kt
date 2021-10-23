@@ -16,13 +16,12 @@ import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
 import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
-import com.mironov.psychologicaltest.ui.LoginFragment
 import java.io.File
 
 class ResultsActivity : AppCompatActivity() {
 
-    private var userName: String? = null
-    private var testName: String? = null
+    private var receivedUserName: String? = null
+    private var receivedTestName: String? = null
 
     private var selectedUser: String? = null
     private var selectedTest: String? = null
@@ -33,6 +32,7 @@ class ResultsActivity : AppCompatActivity() {
 
     private var testNameSpinner: Spinner? = null
     private var userNameSpinner: Spinner? = null
+
     private lateinit var progressBar: ProgressBar
 
     private lateinit var resultText: TextView
@@ -44,7 +44,6 @@ class ResultsActivity : AppCompatActivity() {
 
     lateinit var createButton: Button
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results_presenter)
@@ -53,11 +52,10 @@ class ResultsActivity : AppCompatActivity() {
 
         val sender = this.intent.extras?.getString(KeysContainer.KEY_SENDER)
 
-
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_FRAGMENT_LOGIN)) {
-            userName = intent.getStringExtra(KEY_USER_NAME)
-            testName = intent.getStringExtra(KEY_TEST_NAME)
+            receivedUserName = intent.getStringExtra(KEY_USER_NAME)
+            receivedTestName = intent.getStringExtra(KEY_TEST_NAME)
         }
 
         viewModel = ViewModelProvider(this).get(ResultsViewModel::class.java)
@@ -78,12 +76,12 @@ class ResultsActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.export_to_storage-> {
-                viewModel.saveDbToStorage(rootPath,applicationContext)
+            R.id.export_to_storage -> {
+                viewModel.saveDbToStorage(rootPath, applicationContext)
                 true
             }
             R.id.import_from_storage -> {
-                viewModel.importAnswers(rootPath,applicationContext)
+                viewModel.importAnswers(rootPath, applicationContext)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -92,15 +90,15 @@ class ResultsActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.run {
-            putString(KeysContainer.KEY_TEST_NAME, selectedTest)
-            putString(KeysContainer.KEY_USER_NAME, selectedUser)
+        outState.run {
+            putString(KEY_TEST_NAME, selectedTest)
+            putString(KEY_USER_NAME, selectedUser)
         }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        userName= savedInstanceState?.getString(KEY_USER_NAME)
-        testName= savedInstanceState?.getString(KEY_TEST_NAME)
+        receivedUserName = savedInstanceState.getString(KEY_USER_NAME)
+        receivedTestName = savedInstanceState.getString(KEY_TEST_NAME)
         viewModel.readUsers()
     }
 
@@ -116,14 +114,38 @@ class ResultsActivity : AppCompatActivity() {
         userNameSpinner?.isEnabled = false
         testNameSpinner?.isEnabled = false
 
-        resultText.movementMethod=ScrollingMovementMethod()
+        resultText.movementMethod = ScrollingMovementMethod()
     }
 
     //Spinners
+    private fun initSpinnerUsers() {
+
+        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, usersList)
+        adapter.setDropDownViewResource(R.layout.spinner_item)
+
+        userNameSpinner!!.isEnabled = usersList.isNotEmpty()
+        userNameSpinner!!.adapter = adapter
+
+        userNameSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                adapterView: AdapterView<*>?,
+                view: View?,
+                i: Int,
+                l: Long
+            ) {
+                selectedUser = usersList[i]
+                if (selectedUser != null) {
+                    viewModel.readFinishedTest(selectedUser.toString())
+                }
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+    }
+
     private fun initSpinnerTables() {
 
-        var testDbNames = resources.getStringArray(R.array.tests)
-        var testsNames = resources.getStringArray(R.array.testsNames)
+        val testDbNames = resources.getStringArray(R.array.tests)
+        val testsNames = resources.getStringArray(R.array.testsNames)
 
         var map = testDbNames.zip(testsNames).toMap()
 
@@ -132,12 +154,10 @@ class ResultsActivity : AppCompatActivity() {
         testsList.forEach { v ->
             userTestNames.add(map[v])
         }
-        testDbNames = emptyArray()
-        testsNames = emptyArray()
         map = emptyMap()
 
-
-        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, userTestNames)
+        val adapter: ArrayAdapter<*> =
+            ArrayAdapter<String>(this, R.layout.spinner_item, userTestNames)
 
         adapter.setDropDownViewResource(R.layout.spinner_item)
 
@@ -161,44 +181,12 @@ class ResultsActivity : AppCompatActivity() {
                     createButton.isEnabled = false
                 }
             }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-    }
-
-    private fun initSpinnerUsers() {
-
-        val adapter: ArrayAdapter<*> = ArrayAdapter<String>(this, R.layout.spinner_item, usersList)
-        adapter.setDropDownViewResource(R.layout.spinner_item)
-
-        userNameSpinner!!.isEnabled = usersList.isNotEmpty()
-        userNameSpinner!!.adapter = adapter
-
-        userNameSpinner!!.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                adapterView: AdapterView<*>?,
-                view: View?,
-                i: Int,
-                l: Long
-            ) {
-                selectedUser = usersList[i]
-                if (selectedUser != null) {
-                    viewModel.readFinishedTest(selectedUser.toString())
-                }
-            }
-            override fun onNothingSelected(p0: AdapterView<*>?) {
-                TODO("Not yet implemented")
-            }
-        }
-    }
-
-    fun setupObserver() {
-        viewModel.resultsModelStatus.observe(this) {
+    private fun setupObserver() {
+        viewModel.resultsModelStatus.observe(this) { it ->
             when (it) {
                 ResultsStatus.TEST_NAMES_LOADED -> {
                     testsList = viewModel.testsList
@@ -206,6 +194,8 @@ class ResultsActivity : AppCompatActivity() {
                     testNameSpinner?.adapter = null
                     testNameSpinner?.onItemSelectedListener = null
                     initSpinnerTables()
+
+                    testNameSpinner!!.setSelection(testsList.indexOf(receivedTestName))
 
                     progressBar.isEnabled = false
                     progressBar.visibility = View.GONE
@@ -217,7 +207,7 @@ class ResultsActivity : AppCompatActivity() {
                     userNameSpinner?.onItemSelectedListener = null
                     initSpinnerUsers()
 
-                    userNameSpinner!!.setSelection(usersList.indexOf(userName))
+                    userNameSpinner!!.setSelection(usersList.indexOf(receivedUserName))
 
                     progressBar.isEnabled = false
                     progressBar.visibility = View.GONE
@@ -238,10 +228,10 @@ class ResultsActivity : AppCompatActivity() {
                     progressBar.isEnabled = true
                     progressBar.visibility = View.VISIBLE
                 }
-                ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE->{
-                    viewModel.importResults(rootPath,applicationContext)
+                ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE -> {
+                    viewModel.importResults(rootPath, applicationContext)
                 }
-                ResultsStatus.IMPORTED_RESULTS_FROM_STORAGE->{
+                ResultsStatus.IMPORTED_RESULTS_FROM_STORAGE -> {
                     Toast.makeText(
                         applicationContext,
                         "импортировано",
@@ -249,8 +239,8 @@ class ResultsActivity : AppCompatActivity() {
                     ).show()
                     viewModel.readUsers()
                 }
-                ResultsStatus.RESULTS_LOADED->{
-                    resultText.text=viewModel.resultText
+                ResultsStatus.RESULTS_LOADED -> {
+                    resultText.text = viewModel.resultText
                     progressBar.isEnabled = false
                     progressBar.visibility = View.GONE
                 }
@@ -259,13 +249,12 @@ class ResultsActivity : AppCompatActivity() {
     }
 
     private fun setupButtonsListeners() {
-
-        createButton.setOnClickListener { v: View? ->
+        createButton.setOnClickListener {
             createDocument()
         }
     }
 
-    private fun createDocument(){
+    private fun createDocument() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
             viewModel.printResultsToPDF(filePath, selectedTest.toString(), selectedUser.toString())
@@ -275,7 +264,7 @@ class ResultsActivity : AppCompatActivity() {
         }
     }
 
-    private fun viewFile(path: String?) {
+    private fun viewFile(path: String) {
         val file = File(path)
         val intent = Intent(
             Intent.ACTION_VIEW,

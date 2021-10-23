@@ -37,6 +37,7 @@
     <string name="add_mew_user">Новый пользватель</string>
     <string name="export">экспорт</string>
     <string name="import_from_storage">импорт</string>
+    <string name="import_failed">импорт неудался</string>
 
 
 </resources>
