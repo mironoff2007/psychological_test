@@ -14,7 +14,7 @@ class DbSaveRead() {
 
         val currentDBPath = AnswerDatabase.getDatabase(context)!!.openHelper.writableDatabase.path
         val backupDBPath =
-            "exported_db.sqlite"      //you can modify the file type you need to export
+            "exported_db.sqlite"
         val currentDB = File(currentDBPath)
         val backupDB = File(path, backupDBPath)
         if (currentDB.exists()) {

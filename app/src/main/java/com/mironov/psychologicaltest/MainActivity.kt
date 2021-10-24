@@ -84,7 +84,7 @@ class MainActivity : AppCompatActivity() {
                 loginFragment = LoginFragment()
                 val bundle = Bundle()
                 bundle.putString(KEY_USER_NAME, userName)
-                bundle.putString(KEY_TEST_NAME, testName)
+                bundle.putString(KEY_TEST_NAME, tableName)
                 loginFragment!!.arguments = bundle
                 loginFragment!!.show(supportFragmentManager, KEY_FRAGMENT_LOGIN)
                 loginFragment = null

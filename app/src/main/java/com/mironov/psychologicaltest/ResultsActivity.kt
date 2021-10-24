@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -175,7 +176,6 @@ class ResultsActivity : AppCompatActivity() {
 
                 if (selectedUser != null && selectedTest != null) {
                     viewModel.getResult(selectedUser!!, selectedTest!!)
-                    filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
                     createButton.isEnabled = true
                 } else {
                     createButton.isEnabled = false
