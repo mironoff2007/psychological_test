@@ -9,12 +9,15 @@ import com.mironov.psychologicaltest.data.*
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Question
 import com.mironov.psychologicaltest.model.TestResult
+import com.mironov.psychologicaltest.security.LoginProvider
 import java.io.File
 
 class Repository(context: Context) {
 
     var questionDao: QuestionDao = QuestionDatabase.getDatabase(context).questionDao()
     var answerDao: AnswerDao = AnswerDatabase.getDatabase(context).answerDao()
+    var passwordShared=DataShared(context,"password")
+
     lateinit var answerDaoImported: AnswerDaoImport
 
     lateinit var path: String
@@ -84,5 +87,14 @@ class Repository(context: Context) {
 
     fun readTestResult(id:Int):LiveData<TestResult?> {
         return answerDao.readTestResult(id)
+    }
+
+    fun storePassword(password:String){
+        val loginProvider=LoginProvider()
+        loginProvider.getEncodedKey(password)?.let { passwordShared.saveByteArray(it,"password") }
+    }
+
+    fun getStoredPassword():ByteArray{
+        return passwordShared.getByteArray("password")
     }
 }
