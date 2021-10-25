@@ -215,7 +215,7 @@ class ResultsActivity : AppCompatActivity() {
                 ResultsStatus.PRINTED -> {
                     Toast.makeText(
                         applicationContext,
-                        "сохранено - $filePath",
+                        applicationContext.getString(R.string.saved_to_text)+ filePath,
                         Toast.LENGTH_LONG
                     ).show()
 
@@ -234,7 +234,7 @@ class ResultsActivity : AppCompatActivity() {
                 ResultsStatus.IMPORTED_RESULTS_FROM_STORAGE -> {
                     Toast.makeText(
                         applicationContext,
-                        "импортировано",
+                        getString(R.string.db_imported),
                         Toast.LENGTH_LONG
                     ).show()
                     viewModel.readUsers()

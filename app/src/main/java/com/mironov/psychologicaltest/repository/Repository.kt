@@ -13,19 +13,11 @@ import java.io.File
 
 class Repository(context: Context) {
 
-    lateinit var sharedPrefs: DataShared
-    lateinit var questionDao: QuestionDao
-    lateinit var answerDao: AnswerDao
+    var questionDao: QuestionDao = QuestionDatabase.getDatabase(context).questionDao()
+    var answerDao: AnswerDao = AnswerDatabase.getDatabase(context).answerDao()
     lateinit var answerDaoImported: AnswerDaoImport
 
     lateinit var path: String
-
-    init {
-        sharedPrefs = DataShared(context)
-        questionDao = QuestionDatabase.getDatabase(context).questionDao()
-        answerDao = AnswerDatabase.getDatabase(context).answerDao()
-    }
-
 
     fun getQuestionById(tableName: String, id: Int): LiveData<Question?> {
         return questionDao.getQuestionById(SimpleSQLiteQuery("SELECT * FROM $tableName WHERE id =$id"))
@@ -65,7 +57,7 @@ class Repository(context: Context) {
     }
 
     fun importAnswers(path: String, context: Context): LiveData<List<Answer?>>? {
-        var file = File(path + "exported_db.sqlite")
+        val file = File(path + "exported_db.sqlite")
         if (file.canRead()) {
             answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
         return answerDaoImported.readAllAnswers()
@@ -79,7 +71,7 @@ class Repository(context: Context) {
     }
 
     fun importResult(path: String, context: Context): LiveData<List<TestResult?>> {
-        var file = File(path + "exported_db.sqlite")
+        var file = File(path + context.getString(R.string.export_db_file_name))
         if (file.canRead()) {
             answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
         }

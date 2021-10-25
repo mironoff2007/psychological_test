@@ -1,8 +1,8 @@
 package com.mironov.psychologicaltest.repository
 
 import android.content.Context
-import android.util.Log
 import android.widget.Toast
+import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.data.AnswerDatabase
 import java.io.File
 import java.io.FileInputStream
@@ -14,7 +14,7 @@ class DbSaveRead() {
 
         val currentDBPath = AnswerDatabase.getDatabase(context)!!.openHelper.writableDatabase.path
         val backupDBPath =
-            "exported_db.sqlite"
+            context.getString(R.string.export_db_file_name)
         val currentDB = File(currentDBPath)
         val backupDB = File(path, backupDBPath)
         if (currentDB.exists()) {
@@ -26,7 +26,7 @@ class DbSaveRead() {
                 dst.close()
                 Toast.makeText(
                     context,
-                    "сохранено - $path+/$backupDBPath",
+                    context.getString(R.string.saved_to_text)+path+backupDBPath,
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: IOException) {

@@ -5,13 +5,11 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import android.widget.RadioGroup
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -71,7 +69,6 @@ class MainActivity : AppCompatActivity() {
         Manifest.permission.READ_EXTERNAL_STORAGE,
         Manifest.permission.WRITE_EXTERNAL_STORAGE
     )
-
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -161,17 +158,9 @@ class MainActivity : AppCompatActivity() {
         tableNameSpinner.onItemSelectedListener = null
     }
 
-    override fun onContentChanged() {
-        super.onContentChanged()
-    }
-
     override fun onResume() {
         super.onResume()
         receiveData()
-    }
-
-    override fun onPause() {
-        super.onPause()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -201,7 +190,7 @@ class MainActivity : AppCompatActivity() {
         //DETERMINE WHO STARTED THIS ACTIVITY
         val sender = this.intent.extras?.getString(KEY_SENDER)
 
-        var testId:Int
+        val testId:Int
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
@@ -256,6 +245,7 @@ class MainActivity : AppCompatActivity() {
         yesButton.setOnClickListener { v: View? ->
             viewModel.addAnswer(radioButtonId, subQuestionList[radioButtonId], 1)
             radioGroup.clearCheck()
+            radioGroup.isEnabled=false
         }
         prevButton.setOnClickListener { v: View? ->
             viewModel.prevQuestion()
@@ -286,10 +276,8 @@ class MainActivity : AppCompatActivity() {
 
     //Spinners
     private fun initSpinnerAdapters() {
-
         val testDbNames = resources.getStringArray(R.array.tests)
         val testsNames = resources.getStringArray(R.array.testsNames)
-
 
         val testNamesList = listOf(*resources.getStringArray(R.array.testsNames))
         val adapter: ArrayAdapter<*> =
@@ -307,8 +295,6 @@ class MainActivity : AppCompatActivity() {
             ) {
                 tableName = testDbNames[i]
 
-                selectedTableId = i
-
                 prevButton.visibility = View.GONE
 
                 selectedTableId = i
@@ -323,10 +309,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
-
-            override fun onNothingSelected(adapterView: AdapterView<*>?) {
-                tableName = "azenk_child"
-            }
+            override fun onNothingSelected(adapterView: AdapterView<*>?) {}
         }
     }
 
@@ -347,16 +330,20 @@ class MainActivity : AppCompatActivity() {
                     postNewQuestion()
                     radioGroup.isEnabled = true
                     prevButton.isEnabled = false
+                    yesButton.isEnabled=true
+                    yesButton.visibility=View.VISIBLE
                     prevButton.visibility = View.GONE
                     radioGroup.visibility = View.VISIBLE
-                    Log.d("My_tag", viewModel.calculation.getResultString())
+                    progressBar.visibility = View.GONE
+                    //Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.RESPONSE -> {
-                    radioGroup.isEnabled = true
                     postNewQuestion()
+                    radioGroup.isEnabled = true
                     prevButton.isEnabled = true
                     prevButton.visibility = View.VISIBLE
-                    Log.d("My_tag", viewModel.calculation.getResultString())
+                    progressBar.visibility = View.GONE
+                   //Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.LOADING -> {
                     yesButton.isEnabled = false
@@ -365,10 +352,8 @@ class MainActivity : AppCompatActivity() {
                     radioGroup.isEnabled = false
                 }
                 Status.DONE -> {
-                    questionText.text = "Закончен"
-                    Log.d("My_tag", viewModel.calculation.getResultString())
+                    //Log.d("My_tag", viewModel.calculation.getResultString())
                     yesButton.isEnabled = false
-
                     yesButton.visibility = View.GONE
                     prevButton.visibility = View.GONE
                     radioGroup.visibility = View.GONE
@@ -379,12 +364,13 @@ class MainActivity : AppCompatActivity() {
                     progressBar.visibility = View.GONE
                     Toast.makeText(
                         applicationContext,
-                        "PRINTED to - " + filePath,
+                        applicationContext.getString(R.string.saved_to_text) + filePath,
                         Toast.LENGTH_LONG
                     ).show()
                 }
-                Status.WRITING_RES_TO_DB -> {
-
+                Status.RESULTS_SAVED -> {
+                    questionText.text = getString(R.string.test_done_text)
+                    progressBar.visibility = View.GONE
                 }
             }
         }
@@ -403,16 +389,12 @@ class MainActivity : AppCompatActivity() {
             v.visibility = View.GONE
             v.text = ""
         }
-        yesButton.isEnabled = false
 
         subQuestionList.forEach { v ->
             radioButtonList[subQuestionList.lastIndexOf(v)].isEnabled = true
             radioButtonList[subQuestionList.lastIndexOf(v)].visibility = View.VISIBLE
             radioButtonList[subQuestionList.lastIndexOf(v)].text = v
         }
-
-        yesButton.visibility = View.VISIBLE
-        progressBar.visibility = View.INVISIBLE
     }
 }
 

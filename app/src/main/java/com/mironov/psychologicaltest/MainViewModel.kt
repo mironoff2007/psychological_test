@@ -4,7 +4,6 @@ import android.app.Application
 import androidx.annotation.Nullable
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
-import com.mironov.psychologicaltest.data.DataShared
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.Calculation
@@ -35,22 +34,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val viewModelStatus: MutableLiveData<Status> = MutableLiveData<Status>()
 
-    val calculation: Calculation = Calculation()
-
-    private  var sharedPrefs: DataShared
+    private val calculation: Calculation = Calculation()
 
     private lateinit var tableName: String
 
-    private val repository: Repository
+    private val repository: Repository = Repository(application.applicationContext)
 
-    private val complexTestsList = arrayListOf("family_parenting_strategies")
-    var testIsComplex: Boolean = false
+    //List of complex tests
+    private val complexTestsList = arrayListOf(*application.resources.getStringArray(R.array.complexTests))
 
-    init {
-        repository = Repository(application.applicationContext)
-        sharedPrefs = DataShared(application.applicationContext)
-    }
-
+    private var testIsComplex: Boolean = false
 
     fun changeTableName(tableName: String) {
         this.tableName = tableName
@@ -67,7 +60,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             questionRequest.observeForever(object : Observer<Question?> {
                 override fun onChanged(q: Question?) {
                     currentQuestion = q
-
+                    //If user moved back
                     if (returned) {
                         returned = false
                         val answer = answersQue.removeFirst()
@@ -78,6 +71,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                         )
                     }
                     questionRequest.removeObserver(this)
+                    //If user returned to first question
                     if (questionId == 1) {
                         viewModelStatus.postValue(Status.FIRST)
                     } else {
@@ -90,18 +84,16 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-
     fun addAnswer(answerId: Int, answer: String, inc: Int){
         answer(answerId, answer, inc)
         answersQue.push(answer)
         getNextQuestion()
     }
 
-
     fun answer(answerId: Int, answer: String, inc: Int) {
         //Type of test
         if (testIsComplex) {
-            //Compex test
+            //Complex test
             val list = currentQuestion?.type!!.split(";")
             calculation.addAnswer(
                 currentQuestion,
@@ -123,9 +115,8 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun addResultsToDb() {
+        viewModelStatus.postValue(Status.LOADING)
         val arr = answersQue.clone()
-
-        viewModelStatus.postValue(Status.WRITING_RES_TO_DB)
 
         viewModelScope.launch(Dispatchers.IO) {
             for (i in 0 until arr.size) {
@@ -139,6 +130,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     )
                 )
                 repository.addTestResult(TestResult((tableName + userName).hashCode(),calculation.getResultString()))
+                viewModelStatus.postValue(Status.RESULTS_SAVED)
             }
         }
     }
@@ -146,6 +138,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
         if (questionMaxId == 0)
+            //Question is first
             mutableMaxCount.observeForever(object : Observer<Int?> {
                 override fun onChanged(@Nullable count: Int?) {
                     if (count != null) {

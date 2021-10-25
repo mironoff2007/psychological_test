@@ -50,7 +50,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
         repository = Repository(application.applicationContext)
     }
 
-
     fun readUsers() {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
         usersRequest = repository.readUsers()
@@ -198,9 +197,8 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
                     }
                 }
             })
-
-
     }
+
     fun importResults(path: String, context: Context) {
         requestResultList=repository.importResult(path, context)
         requestResultList.observeForever(object : Observer<List<TestResult?>> {
