@@ -21,7 +21,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     private lateinit var usersRequest: LiveData<List<String?>>
     private lateinit var finishedTestRequest: LiveData<List<String?>>
     private lateinit var answerRequest: LiveData<List<Answer?>>
-    private          var importAnswerRequest: LiveData<List<Answer?>>?=null
+    private var importAnswerRequest: LiveData<List<Answer?>>? = null
     private lateinit var questionRequest: LiveData<Question?>
     private lateinit var resultRequest: LiveData<TestResult?>
     private lateinit var requestResultList: LiveData<List<TestResult?>>
@@ -187,20 +187,20 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun importAnswers(path: String, context: Context) {
-        importAnswerRequest=repository.importAnswers(path, context)
+        importAnswerRequest = repository.importAnswers(path, context)
         importAnswerRequest?.observeForever(object : Observer<List<Answer?>> {
-                override fun onChanged(list: List<Answer?>) {
-                    importAnswerRequest?.removeObserver(this)
-                    viewModelScope.launch(Dispatchers.IO) {
-                        repository.answerDao.insertAllAnswers(list as List<Answer>)
-                        resultsModelStatus.postValue(ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE)
-                    }
+            override fun onChanged(list: List<Answer?>) {
+                importAnswerRequest?.removeObserver(this)
+                viewModelScope.launch(Dispatchers.IO) {
+                    repository.answerDao.insertAllAnswers(list as List<Answer>)
+                    resultsModelStatus.postValue(ResultsStatus.IMPORTED_ANSWERS_FROM_STORAGE)
                 }
-            })
+            }
+        })
     }
 
     fun importResults(path: String, context: Context) {
-        requestResultList=repository.importResult(path, context)
+        requestResultList = repository.importResult(path, context)
         requestResultList.observeForever(object : Observer<List<TestResult?>> {
             override fun onChanged(list: List<TestResult?>) {
                 requestResultList.removeObserver(this)
