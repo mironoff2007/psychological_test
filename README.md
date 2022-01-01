@@ -6,7 +6,7 @@
 -Room\
 -PDFWriter
 
-<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic1.png" width="400" height="550">
-<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic2.png" width="400" height="550">
-<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic3.png" width="400" height="550">
-<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic4.png" width="400" height="550">
+<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic1.png" width="250" height="450">
+<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic2.png" width="250" height="450">
+<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic3.png" width="250" height="450">
+<img src="https://github.com/mironoff2007/psychological_test/blob/master/psyt_readme_pic4.png" width="250" height="450">
