@@ -64,11 +64,13 @@ class MainActivity : AppCompatActivity() {
     private var questionsCount = 0
 
     // Storage Permissions
-    private val REQUEST_EXTERNAL_STORAGE = 1
-    private val PERMISSIONS_STORAGE = arrayOf(
-        Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
-    )
+    companion object {
+        const val REQUEST_EXTERNAL_STORAGE = 1
+              val PERMISSIONS_STORAGE = arrayOf(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        )
+    }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
@@ -120,9 +122,11 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.N) {
             //API Higher then N
             if (ContextCompat.checkSelfPermission(
-                    applicationContext,Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+                    applicationContext, Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED ||
                 ContextCompat.checkSelfPermission(
-                    applicationContext,Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                    applicationContext, Manifest.permission.READ_EXTERNAL_STORAGE
+                ) != PackageManager.PERMISSION_GRANTED
             ) {
                 ActivityCompat.requestPermissions(
                     this,
@@ -190,7 +194,7 @@ class MainActivity : AppCompatActivity() {
         //DETERMINE WHO STARTED THIS ACTIVITY
         val sender = this.intent.extras?.getString(KEY_SENDER)
 
-        val testId:Int
+        val testId: Int
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_NAME_FRAGMENT)) {
             val name = intent.getStringExtra(KEY_NAME_FRAGMENT)
@@ -245,7 +249,7 @@ class MainActivity : AppCompatActivity() {
         yesButton.setOnClickListener { v: View? ->
             viewModel.addAnswer(radioButtonId, subQuestionList[radioButtonId], 1)
             radioGroup.clearCheck()
-            radioGroup.isEnabled=false
+            radioGroup.isEnabled = false
         }
         prevButton.setOnClickListener { v: View? ->
             viewModel.prevQuestion()
@@ -308,7 +312,11 @@ class MainActivity : AppCompatActivity() {
                         viewModel.changeTableName(tableName)
                     }
                 }
+                else{
+                    hideTest()
+                }
             }
+
             override fun onNothingSelected(adapterView: AdapterView<*>?) {}
         }
     }
@@ -330,8 +338,8 @@ class MainActivity : AppCompatActivity() {
                     postNewQuestion()
                     radioGroup.isEnabled = true
                     prevButton.isEnabled = false
-                    yesButton.isEnabled=true
-                    yesButton.visibility=View.VISIBLE
+                    yesButton.isEnabled = true
+                    yesButton.visibility = View.VISIBLE
                     prevButton.visibility = View.GONE
                     radioGroup.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
@@ -343,7 +351,7 @@ class MainActivity : AppCompatActivity() {
                     prevButton.isEnabled = true
                     prevButton.visibility = View.VISIBLE
                     progressBar.visibility = View.GONE
-                   //Log.d("My_tag", viewModel.calculation.getResultString())
+                    //Log.d("My_tag", viewModel.calculation.getResultString())
                 }
                 Status.LOADING -> {
                     yesButton.isEnabled = false
@@ -353,11 +361,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 Status.DONE -> {
                     //Log.d("My_tag", viewModel.calculation.getResultString())
-                    yesButton.isEnabled = false
-                    yesButton.visibility = View.GONE
-                    prevButton.visibility = View.GONE
-                    radioGroup.visibility = View.GONE
-
+                    hideTest()
                     viewModel.addResultsToDb()
                 }
                 Status.PRINTED -> {
@@ -376,6 +380,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun hideTest(){
+        yesButton.isEnabled = false
+        yesButton.visibility = View.GONE
+        prevButton.visibility = View.GONE
+        radioGroup.visibility = View.GONE
+        questionText.text=""
+    }
+
+    @SuppressLint("SetTextI18n")
     private fun postNewQuestion() {
         val q = viewModel.currentQuestion
         subQuestionList = q?.subQuestionText?.split(";") as ArrayList<String>
@@ -384,12 +397,14 @@ class MainActivity : AppCompatActivity() {
             q?.id.toString() + "/" + questionsCount + ". " + q?.questionText
 
         //UI update
+        //Hide all radio buttons
         radioButtonList.forEach { v ->
             v.isEnabled = false
             v.visibility = View.GONE
             v.text = ""
         }
 
+        //Show Radio Buttons, according to sub questions count
         subQuestionList.forEach { v ->
             radioButtonList[subQuestionList.lastIndexOf(v)].isEnabled = true
             radioButtonList[subQuestionList.lastIndexOf(v)].visibility = View.VISIBLE
