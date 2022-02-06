@@ -52,7 +52,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     fun readUsers() {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
-        usersRequest = repository.readUsers()
+
         usersRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
                 usersList = list as ArrayList<String?>
@@ -66,7 +66,7 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     fun readFinishedTest(userName: String) {
         resultsModelStatus.postValue(ResultsStatus.LOADING)
-        finishedTestRequest = repository.readFinishedTest(userName)
+
         finishedTestRequest.observeForever(object : Observer<List<String?>> {
             override fun onChanged(list: List<String?>) {
 

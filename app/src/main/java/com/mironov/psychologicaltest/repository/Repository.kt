@@ -42,14 +42,6 @@ class Repository(context: Context) {
         return answerDao.readAnswersByTest(SimpleSQLiteQuery("SELECT * FROM Answer WHERE testName='$testName' AND user='$userName' ORDER BY Answer.questionID"))
     }
 
-    fun readUsers(): LiveData<List<String?>> {
-        return answerDao.readUsers()
-    }
-
-    fun readFinishedTest(userName: String): LiveData<List<String?>> {
-        return answerDao.readFinishedTests(userName)
-    }
-
     fun readAllAnswers(): LiveData<List<Answer?>> {
         return answerDao.readAllAnswers()
     }
@@ -60,7 +52,7 @@ class Repository(context: Context) {
     }
 
     fun importAnswers(path: String, context: Context): LiveData<List<Answer?>>? {
-        val file = File(path + "exported_db.sqlite")
+        val file = File(path + context.getString(R.string.export_db_file_name))
         if (file.canRead()) {
             answerDaoImported = AnswerDatabaseImport.getDatabase(context, file).answerDaoImport()
         return answerDaoImported.readAllAnswers()

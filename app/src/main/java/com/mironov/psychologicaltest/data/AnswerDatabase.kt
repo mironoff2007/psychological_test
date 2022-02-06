@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.model.Answer
 import com.mironov.psychologicaltest.model.TestResult
 
@@ -26,7 +27,7 @@ abstract class AnswerDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AnswerDatabase::class.java,
-                    "psychological_test_answer.db"
+                    context.getString(R.string.answers_db_name)
                 ).setJournalMode(JournalMode.TRUNCATE).build()
 
                 INSTANCE = instance

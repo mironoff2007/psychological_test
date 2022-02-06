@@ -22,7 +22,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private lateinit var mutableMaxCount: LiveData<Int?>
     private lateinit var questionRequest: LiveData<Question?>
 
-    var answersQue: ArrayDeque<String> = ArrayDeque<String>()
+    var answersQue: ArrayDeque<Int> = ArrayDeque<Int>()
 
     var returned: Boolean = false
 
@@ -37,16 +37,19 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private val calculation: Calculation = Calculation()
 
     private lateinit var tableName: String
+    private var testId: Int = 0
 
     private val repository: Repository = Repository(application.applicationContext)
 
     //List of complex tests
-    private val complexTestsList = arrayListOf(*application.resources.getStringArray(R.array.complexTests))
+    private val complexTestsList =
+        arrayListOf(*application.resources.getStringArray(R.array.complexTests))
 
     private var testIsComplex: Boolean = false
 
-    fun changeTableName(tableName: String) {
+    fun changeTableName(tableName: String, testId: Int) {
         this.tableName = tableName
+        this.testId = testId
         mutableMaxCount = repository.getRowsCount(tableName)
         //Change test type to complex
         testIsComplex = complexTestsList.contains(tableName)
@@ -63,12 +66,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                     //If user moved back
                     if (returned) {
                         returned = false
-                        val answer = answersQue.removeFirst()
-                        answer(
-                            currentQuestion?.subQuestionText?.split(";")!!.indexOf(answer),
-                            answer,
-                            -1
-                        )
+                        answersQue.removeFirst()
                     }
                     questionRequest.removeObserver(this)
                     //If user returned to first question
@@ -84,25 +82,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun addAnswer(answerId: Int, answer: String, inc: Int){
-        answer(answerId, answer, inc)
-        answersQue.push(answer)
+    fun addAnswer(answerId: Int) {
+        answersQue.push(answerId)
         getNextQuestion()
-    }
-
-    fun answer(answerId: Int, answer: String, inc: Int) {
-        //Type of test
-        if (testIsComplex) {
-            //Complex test
-            val list = currentQuestion?.type!!.split(";")
-            calculation.addAnswer(
-                currentQuestion,
-                list[answerId], currentQuestion?.answer!!, inc
-            )
-        } else {
-            //YES/NO test
-            calculation.addAnswer(currentQuestion, currentQuestion?.type!!, answer, inc)
-        }
     }
 
 
@@ -122,14 +104,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             for (i in 0 until arr.size) {
                 repository.addAnswer(
                     Answer(
-                        (i.toString() + tableName + userName).hashCode(),
-                        userName!!,
-                        tableName,
-                        i + 1,
+                        id = (i.toString() + tableName).hashCode(),
+                        testId = testId,
+                        questionId = i + 1,
                         arr.removeLast()
                     )
                 )
-                repository.addTestResult(TestResult((tableName + userName).hashCode(),calculation.getResultString()))
+                repository.addTestResult(
+                    TestResult(
+                        (tableName + userName).hashCode(),
+                        calculation.getResultString()
+                    )
+                )
                 viewModelStatus.postValue(Status.RESULTS_SAVED)
             }
         }
@@ -138,7 +124,7 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     private fun getNextQuestion() {
         viewModelStatus.postValue(Status.LOADING)
         if (questionMaxId == 0)
-            //Question is first
+        //Question is first
             mutableMaxCount.observeForever(object : Observer<Int?> {
                 override fun onChanged(@Nullable count: Int?) {
                     if (count != null) {

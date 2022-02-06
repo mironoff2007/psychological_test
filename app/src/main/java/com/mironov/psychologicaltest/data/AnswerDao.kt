@@ -35,12 +35,6 @@ interface AnswerDao {
     @RawQuery(observedEntities = [Answer::class])
     fun readAnswersByTest(query: SupportSQLiteQuery): LiveData<List<Answer?>>
 
-    @Query("SELECT DISTINCT Answer.user  FROM Answer")
-    fun readUsers(): LiveData<List<String?>>
-
-    @Query("SELECT DISTINCT Answer.testName  FROM Answer Where Answer.user=:userName")
-    fun readFinishedTests(userName:String): LiveData<List<String?>>
-
     @Query("SELECT * FROM Answer")
     fun readAllAnswers(): LiveData<List<Answer?>>
 

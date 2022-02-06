@@ -10,8 +10,7 @@ import kotlinx.android.parcel.Parcelize
 data class Answer(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val user: String,
-    val testName: String,
+    val testId: Int,
     val questionId:Int,
-    val answer:String,
+    val answer:Int,
 ): Parcelable

@@ -26,7 +26,6 @@ import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
 import com.mironov.psychologicaltest.ui.LoginFragment
 
-
 class MainActivity : AppCompatActivity() {
 
     var inputUserDataFragment: InputUserDataFragment? = null
@@ -247,7 +246,7 @@ class MainActivity : AppCompatActivity() {
     //Buttons Listeners
     private fun setupListeners() {
         yesButton.setOnClickListener { v: View? ->
-            viewModel.addAnswer(radioButtonId, subQuestionList[radioButtonId], 1)
+            viewModel.addAnswer(radioButtonId)
             radioGroup.clearCheck()
             radioGroup.isEnabled = false
         }
@@ -309,7 +308,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     if (testName != testsNames[i]) {
                         testName = testsNames[i]
-                        viewModel.changeTableName(tableName)
+                        viewModel.changeTableName(tableName,i)
                     }
                 }
                 else{
