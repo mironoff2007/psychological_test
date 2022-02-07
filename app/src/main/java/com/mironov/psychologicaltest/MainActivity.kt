@@ -71,6 +71,8 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+
+    //Menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
@@ -91,6 +93,10 @@ class MainActivity : AppCompatActivity() {
             R.id.new_user -> {
                 userName = null
                 requestNewUserName()
+                true
+            }
+            R.id.action_export_answers -> {
+                viewModel.exportAnswers(rootPath,applicationContext)
                 true
             }
             else -> super.onOptionsItemSelected(item)

@@ -1,13 +1,12 @@
 package com.mironov.psychologicaltest.repository
 
+import android.R.attr.data
 import android.content.Context
 import android.widget.Toast
 import com.mironov.psychologicaltest.R
 import com.mironov.psychologicaltest.data.AnswerDatabase
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
+
 
 class DbSaveRead() {
     fun exportDatabase(path: String, context: Context) {
@@ -26,12 +25,37 @@ class DbSaveRead() {
                 dst.close()
                 Toast.makeText(
                     context,
-                    context.getString(R.string.saved_to_text)+path+backupDBPath,
+                    context.getString(R.string.saved_to_text) + path + backupDBPath,
                     Toast.LENGTH_LONG
                 ).show()
             } catch (e: IOException) {
                 e.printStackTrace()
             }
         }
+    }
+
+    fun exportAnswers(answers: String, path: String, context: Context) {
+
+        val fileName =
+            context.getString(R.string.export_answers_file_name)
+
+        val file = File(path, fileName)
+        val stream = FileOutputStream(file)
+        val outWriter = OutputStreamWriter(stream)
+        try {
+            outWriter.append(answers)
+            outWriter.flush()
+            Toast.makeText(
+                context,
+                context.getString(R.string.saved_to_text) + path + fileName,
+                Toast.LENGTH_LONG
+            ).show()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        finally {
+            stream.close()
+        }
+
     }
 }

@@ -8,9 +8,10 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 @Entity
 data class Answer(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
     val testId: Int,
     val questionId:Int,
     val answer:Int,
-): Parcelable
+): Parcelable{
+    @PrimaryKey(autoGenerate = true)
+    var id:Int=0
+}

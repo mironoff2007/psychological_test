@@ -1,6 +1,7 @@
 package com.mironov.psychologicaltest
 
 import android.app.Application
+import android.content.Context
 import androidx.annotation.Nullable
 import androidx.lifecycle.*
 import androidx.lifecycle.Observer
@@ -87,6 +88,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         getNextQuestion()
     }
 
+    fun exportAnswers(path: String, context: Context) {
+        repository.exportAnswers(path, context)
+    }
 
     private fun reset() {
         answersQue.clear()
@@ -104,7 +108,6 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
             for (i in 0 until arr.size) {
                 repository.addAnswer(
                     Answer(
-                        id = (i.toString() + tableName).hashCode(),
                         testId = testId,
                         questionId = i + 1,
                         arr.removeLast()
