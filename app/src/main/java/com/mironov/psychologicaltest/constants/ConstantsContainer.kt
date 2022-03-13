@@ -1,6 +1,6 @@
 package com.mironov.psychologicaltest.constants
 
-object KeysContainer {
+object ConstantsContainer {
     const val KEY_FRAGMENT_USER_DATA="KEY_FRAGMENT_USER_DATA"
     const val KEY_FRAGMENT_LOGIN="KEY_FRAGMENT_LOGIN"
     const val KEY_NAME_FRAGMENT="KEY_NAME_FRAGMENT"
@@ -11,4 +11,5 @@ object KeysContainer {
     const val KEY_TEST_ID="KEY_TEST_ID"
     const val KEY_USER_ID="KEY_USER_ID"
 
+    const val APP_DIR="/psychological_test/"
 }

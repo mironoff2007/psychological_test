@@ -1,23 +1,27 @@
 package com.mironov.psychologicaltest
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.content.MimeTypeFilter
 import androidx.lifecycle.ViewModelProvider
-import com.mironov.psychologicaltest.constants.KeysContainer
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
+import com.mironov.psychologicaltest.constants.ConstantsContainer
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_FRAGMENT_LOGIN
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_TEST_NAME
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.ResultsStatus
 import java.io.File
+import java.net.URLConnection
 
 class ResultsActivity : AppCompatActivity() {
 
@@ -45,13 +49,14 @@ class ResultsActivity : AppCompatActivity() {
 
     lateinit var createButton: Button
 
+    @RequiresApi(Build.VERSION_CODES.R)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_results_presenter)
 
         userTestNames = arrayListOf<String?>()
 
-        val sender = this.intent.extras?.getString(KeysContainer.KEY_SENDER)
+        val sender = this.intent.extras?.getString(ConstantsContainer.KEY_SENDER)
 
         //IF ITS THE FRAGMENT THEN RECEIVE DATA
         if (sender.equals(KEY_FRAGMENT_LOGIN)) {
@@ -67,7 +72,16 @@ class ResultsActivity : AppCompatActivity() {
 
         viewModel.readUsers()
 
-        rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+        if (applicationContext.getExternalFilesDir(null) == null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                rootPath = getExternalFilesDirs(null)[0].absolutePath + "/"
+
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                rootPath = filesDir.absolutePath + "/"
+            }
+        } else {
+            rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -255,12 +269,29 @@ class ResultsActivity : AppCompatActivity() {
     }
 
     private fun createDocument() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
-            viewModel.printResultsToPDF(filePath, selectedTest.toString(), selectedUser.toString())
-        } else {
-            filePath = rootPath + selectedUser + "-" + selectedTest + ".txt"
-            viewModel.printResultsToTXT(filePath, selectedTest.toString(), selectedUser.toString())
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                filePath = rootPath + selectedUser + "-" + selectedTest + ".pdf"
+                viewModel.printResultsToPDF(
+                    filePath,
+                    selectedTest.toString(),
+                    selectedUser.toString()
+                )
+            } else {
+                filePath = rootPath + selectedUser + "-" + selectedTest + ".txt"
+                viewModel.printResultsToTXT(
+                    filePath,
+                    selectedTest.toString(),
+                    selectedUser.toString()
+                )
+            }
+        }
+        catch (e:Exception){
+            Toast.makeText(
+                applicationContext,
+                e.message,
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 
@@ -273,6 +304,23 @@ class ResultsActivity : AppCompatActivity() {
         intent.flags = Intent.FLAG_ACTIVITY_NO_HISTORY
         intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
 
-        startActivity(intent)
+        startActivity(Intent.createChooser(intent, "Share File"))
+    }
+
+    private fun viewFile2(path: String) {
+        val intentShareFile =  Intent(Intent.ACTION_SEND)
+
+        val file = File(path)
+        intentShareFile.type = "application/pdf"
+        intentShareFile.putExtra(
+            Intent.EXTRA_STREAM,
+            Uri.fromFile(file)
+        );
+
+        //if you need
+        //intentShareFile.putExtra(Intent.EXTRA_SUBJECT,"Sharing File Subject);
+        //intentShareFile.putExtra(Intent.EXTRA_TEXT, "Sharing File Description");
+
+        startActivity(Intent.createChooser(intentShareFile, "Share File"));
     }
 }
