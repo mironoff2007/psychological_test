@@ -41,7 +41,6 @@ class ResultsViewModel(application: Application) : AndroidViewModel(application)
 
     val pdfCreator = PdfCreator()
 
-
     var i: Int = 0
 
     val resultsModelStatus: MutableLiveData<ResultsStatus> = MutableLiveData<ResultsStatus>()

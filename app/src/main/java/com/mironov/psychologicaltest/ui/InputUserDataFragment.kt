@@ -12,9 +12,9 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import com.mironov.psychologicaltest.MainActivity
 import com.mironov.psychologicaltest.R
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_TEST_ID
 
 
 class InputUserDataFragment : DialogFragment() {

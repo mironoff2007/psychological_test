@@ -23,7 +23,6 @@ public class PdfCreator {
     private PdfDocument pdfDocument;
     private Paint paint;
 
-
     private Rect bounds;
     private int pageWidth;
     private int pageHeight;

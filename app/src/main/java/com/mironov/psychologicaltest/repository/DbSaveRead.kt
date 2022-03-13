@@ -31,6 +31,11 @@ class DbSaveRead() {
                 ).show()
             } catch (e: IOException) {
                 e.printStackTrace()
+                Toast.makeText(
+                    context,
+                    e.message,
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }

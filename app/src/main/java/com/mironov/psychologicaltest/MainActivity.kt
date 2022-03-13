@@ -5,26 +5,31 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
 import android.widget.RadioGroup
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_LOGIN
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_FRAGMENT_USER_DATA
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_FRAGMENT
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_NAME_MAIN_ACTIVITY
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_SENDER
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_ID
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_TEST_NAME
-import com.mironov.psychologicaltest.constants.KeysContainer.KEY_USER_NAME
+import com.mironov.psychologicaltest.constants.ConstantsContainer.APP_DIR
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_FRAGMENT_LOGIN
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_FRAGMENT_USER_DATA
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_NAME_FRAGMENT
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_NAME_MAIN_ACTIVITY
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_SENDER
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_TEST_ID
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_TEST_NAME
+import com.mironov.psychologicaltest.constants.ConstantsContainer.KEY_USER_NAME
 import com.mironov.psychologicaltest.constants.Status
 import com.mironov.psychologicaltest.ui.InputUserDataFragment
 import com.mironov.psychologicaltest.ui.LoginFragment
+import java.io.File
+import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
@@ -98,6 +103,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
 
         //Debug.waitForDebugger()
@@ -113,7 +119,16 @@ class MainActivity : AppCompatActivity() {
         initSpinnerAdapters()
         requestPermissions()
 
-        rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+        if (applicationContext.getExternalFilesDir(null) == null) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                rootPath = getExternalFilesDirs(null)[0].absolutePath + "/"
+
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                rootPath = filesDir.absolutePath + "/"
+            }
+        } else {
+            rootPath = applicationContext.getExternalFilesDir(null)!!.absolutePath + "/"
+        }
     }
 
 
@@ -131,7 +146,7 @@ class MainActivity : AppCompatActivity() {
                 ActivityCompat.requestPermissions(
                     this,
                     PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
+                    REQUEST_EXTERNAL_STORAGE,
                 )
             }
         } else {
